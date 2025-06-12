@@ -12,7 +12,7 @@ void main() {
   Flame.device.setLandscape();
   Flame.device.setOrientation(DeviceOrientation.landscapeRight);
 
-  EdgardInKimeria game = EdgardInKimeria();
+  final game = EdgardInKimeria();
   game.onLoad();
 
   runApp(GameWidget(game: kDebugMode ? EdgardInKimeria() : game));
