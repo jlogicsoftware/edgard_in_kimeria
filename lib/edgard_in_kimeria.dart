@@ -1,16 +1,18 @@
 import 'dart:async';
 
-import 'package:edgard_in_kimeria/levels/forest.dart';
-import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 
+import 'package:edgard_in_kimeria/levels/forest.dart';
+
 class EdgardInKimeria extends FlameGame {
   late final CameraComponent _camera;
-  final _world = Forest();
+  final _world = Forest(levelName: 'forest');
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
+    await images.loadAllImages();
+
     // Set the initial camera position if needed
     _camera = CameraComponent.withFixedResolution(
         width: 640, height: 360, world: _world);
