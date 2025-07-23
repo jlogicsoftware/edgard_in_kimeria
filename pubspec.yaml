@@ -31,7 +31,7 @@ flutter:
     - assets/tiles/
     - assets/images/
     - assets/images/Tileset/
-    # - assets/images/enemy/
+    - assets/images/hero/
     # - assets/images/enemy/goblin/
     # - assets/images/enemy/boss/
     # - assets/images/player/
