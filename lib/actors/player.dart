@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/services.dart';
 
 enum PlayerState {
   idle,
@@ -23,7 +25,10 @@ enum PlayerDirection {
 }
 
 class Player extends SpriteAnimationGroupComponent
-    with HasGameReference<EdgardInKimeria> {
+    with
+        HasGameReference<EdgardInKimeria>,
+        KeyboardHandler,
+        CollisionCallbacks {
   Player({required Vector2 position})
       : super(
           position: position,
@@ -34,14 +39,33 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation idleAnimation;
   late final SpriteAnimation walkAnimation;
   final kStepTime = 0.1;
-  final playerDirection = PlayerDirection.none;
+  var playerDirection = PlayerDirection.none;
   final moveSpeed = 50.0;
-  final velocity = Vector2.zero();
+  var velocity = Vector2.zero();
   bool isPlayerFacingRight = true;
+
+  @override
+  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
+        keysPressed.contains(LogicalKeyboardKey.arrowLeft);
+    final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) ||
+        keysPressed.contains(LogicalKeyboardKey.arrowRight);
+
+    if (isRightKeyPressed) {
+      playerDirection = PlayerDirection.right;
+    } else if (isLeftKeyPressed) {
+      playerDirection = PlayerDirection.left;
+    } else {
+      playerDirection = PlayerDirection.none;
+    }
+
+    return super.onKeyEvent(event, keysPressed);
+  }
 
   @override
   FutureOr<void> onLoad() {
     _loadAllAnimations();
+    debugMode = true;
     return super.onLoad();
   }
 

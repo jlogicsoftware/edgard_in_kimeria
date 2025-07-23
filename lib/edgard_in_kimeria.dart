@@ -1,11 +1,17 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
 import 'package:edgard_in_kimeria/levels/forest.dart';
 
-class EdgardInKimeria extends FlameGame {
+class EdgardInKimeria extends FlameGame
+    with
+        HasKeyboardHandlerComponents,
+        DragCallbacks,
+        HasCollisionDetection,
+        TapCallbacks {
   late final CameraComponent _camera;
   final _world = Forest(levelName: 'forest');
 
