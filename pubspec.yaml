@@ -32,12 +32,13 @@ flutter:
     - assets/images/
     - assets/images/Tileset/
     - assets/images/hero/
-    # - assets/images/enemy/goblin/
+    - assets/images/HUD/
+    - assets/images/enemy/
     # - assets/images/enemy/boss/
     # - assets/images/player/
     # - assets/images/items/
     # - assets/images/tiled/
-    # - assets/audio/
+    - assets/audio/
     # - resources/lang/en.json
     # - resources/lang/ru.json
 
