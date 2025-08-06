@@ -222,7 +222,6 @@ class Player extends SpriteAnimationGroupComponent
     // if player's position is outside the screen (Y > 380), respawn
     if (position.y > 380) {
       _respawn();
-      // return;
     }
   }
 
@@ -242,14 +241,11 @@ class Player extends SpriteAnimationGroupComponent
       if (!block.isPlatform && !block.isQuickSand) {
         if (checkCollision(this, block)) {
           if (velocity.x > 0) {
-            print(
-                'Collided with block on right ${block.isPlatform} ${block.isQuickSand}');
             velocity.x = 0;
             position.x = block.x - hitbox.offsetX - hitbox.width;
             break;
           }
           if (velocity.x < 0) {
-            print('Collided with block on left');
             velocity.x = 0;
             position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
             break;
@@ -275,7 +271,6 @@ class Player extends SpriteAnimationGroupComponent
     for (final block in collisionBlocks) {
       if (block.isPlatform) {
         if (checkCollision(this, block)) {
-          print('Collided with platform');
           if (velocity.y > 0) {
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
@@ -285,7 +280,6 @@ class Player extends SpriteAnimationGroupComponent
         }
       } else if (block.isQuickSand) {
         if (checkCollision(this, block)) {
-          print('Collided with quicksand');
           if (velocity.y > 0) {
             velocity.y = 0;
             isOnGround = true;
@@ -296,7 +290,6 @@ class Player extends SpriteAnimationGroupComponent
         }
       } else {
         if (checkCollision(this, block)) {
-          print('Collided with block');
           if (velocity.y > 0) {
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;

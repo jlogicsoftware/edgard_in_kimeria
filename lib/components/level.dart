@@ -22,25 +22,6 @@ class Level extends World {
     _spawningObjects();
     _addCollisions();
 
-    // level.position = Vector2.zero();
-    // level.size = Vector2.all(16 * 20);
-    // level.anchor = Anchor.topLeft;
-
-    // final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>('Spawnpoints');
-    // for (final spawnPoint in spawnPointsLayer!.objects) {
-    //   switch (spawnPoint.class_) {
-    //     case 'Player':
-    //       final playerPosition = Vector2(
-    //         spawnPoint.x,
-    //         spawnPoint.y,
-    //       );
-    //       player.position = playerPosition;
-    //       add(player);
-    //       break;
-    //     default:
-    //   }
-    // }
-
     return super.onLoad();
   }
 
