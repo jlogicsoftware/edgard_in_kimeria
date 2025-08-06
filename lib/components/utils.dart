@@ -10,9 +10,11 @@ bool checkCollision(player, block) {
   final blockWidth = block.width;
   final blockHeight = block.height;
 
-  final fixedX = player.scale.x < 0
+  var fixedX = player.scale.x < 0
       ? playerX - (hitbox.offsetX * 2) - playerWidth
       : playerX;
+  fixedX = block.isQuickSand ? playerX + (hitbox.offsetX) : fixedX;
+
   final fixedY = block.isPlatform ? playerY + playerHeight : playerY;
 
   return (fixedY < blockY + blockHeight &&

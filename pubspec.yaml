@@ -30,6 +30,7 @@ flutter:
     - assets/
     - assets/tiles/
     - assets/images/
+    - assets/images/background/
     - assets/images/Tileset/
     - assets/images/hero/
     - assets/images/HUD/

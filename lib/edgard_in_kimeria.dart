@@ -9,14 +9,14 @@ import 'package:flame/game.dart';
 import 'package:edgard_in_kimeria/components/level.dart';
 import 'package:flutter/painting.dart';
 
-class EdgardInKimeria extends FlameGame
+class EdgardInKimeria extends FlameGame<World>
     with
         HasKeyboardHandlerComponents,
         DragCallbacks,
         HasCollisionDetection,
         TapCallbacks {
-  @override
-  Color backgroundColor() => const Color.fromARGB(255, 2, 9, 52);
+  // @override
+  // Color backgroundColor() => const Color.fromARGB(255, 2, 9, 52);
   final player = Player();
   late CameraComponent cam;
 
