@@ -1,3 +1,4 @@
+import 'package:edgard_in_kimeria/components/background_tile.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:flame/components.dart';
@@ -17,6 +18,7 @@ class Level extends World {
 
     add(level);
 
+    _loadBackground();
     _spawningObjects();
     _addCollisions();
 
@@ -40,6 +42,11 @@ class Level extends World {
     // }
 
     return super.onLoad();
+  }
+
+  void _loadBackground() {
+    final skyTile = SkyTile();
+    add(skyTile);
   }
 
   void _spawningObjects() {

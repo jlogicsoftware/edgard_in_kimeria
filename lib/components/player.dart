@@ -78,26 +78,6 @@ class Player extends SpriteAnimationGroupComponent
 
   bool isInQuickSand = false;
 
-  // @override
-  // bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-  //   final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
-  //       keysPressed.contains(LogicalKeyboardKey.arrowLeft);
-  //   final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) ||
-  //       keysPressed.contains(LogicalKeyboardKey.arrowRight);
-
-  //   if (isRightKeyPressed && isLeftKeyPressed) {
-  //     playerDirection = PlayerDirection.none;
-  //   } else if (isRightKeyPressed) {
-  //     playerDirection = PlayerDirection.right;
-  //   } else if (isLeftKeyPressed) {
-  //     playerDirection = PlayerDirection.left;
-  //   } else {
-  //     playerDirection = PlayerDirection.none;
-  //   }
-
-  //   return super.onKeyEvent(event, keysPressed);
-  // }
-
   @override
   FutureOr<void> onLoad() {
     _loadAllAnimations();
@@ -161,27 +141,6 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _loadAllAnimations() {
-    // idleAnimation = _spriteAnimation(
-    //   image: 'hero/Player.png',
-    //   amount: 4,
-    //   position: Vector2(0, 48 * 9),
-    // );
-
-    // walkAnimation = _spriteAnimation(
-    //   image: 'hero/Player.png',
-    //   amount: 4,
-    //   position: Vector2(0, 48 * 0),
-    // );
-
-    // runAnimation = _spriteAnimation(
-    //     image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
-
-    // animations = {
-    //   PlayerState.idle: idleAnimation,
-    //   PlayerState.running: walkAnimation,
-    //   // PlayerState.run: runAnimation,
-    // };
-
     idleAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 9));
     runningAnimation = _spriteAnimation(
@@ -228,38 +187,6 @@ class Player extends SpriteAnimationGroupComponent
     );
   }
 
-  // void _updatePlayerMovement(double dt) {
-  //   switch (playerDirection) {
-  //     case PlayerDirection.left:
-  //       position.x -= walkSpeed * dt;
-  //       current = PlayerState.walk;
-  //       if (isPlayerFacingRight) {
-  //         flipHorizontallyAroundCenter();
-  //         isPlayerFacingRight = false;
-  //       }
-  //       break;
-  //     case PlayerDirection.right:
-  //       position.x += walkSpeed * dt;
-  //       current = PlayerState.walk;
-  //       if (!isPlayerFacingRight) {
-  //         flipHorizontallyAroundCenter();
-  //         isPlayerFacingRight = true;
-  //       }
-  //       break;
-  //     case PlayerDirection.up:
-  //       position.y -= walkSpeed * dt;
-  //       current = PlayerState.walk;
-  //       break;
-  //     case PlayerDirection.down:
-  //       position.y += walkSpeed * dt;
-  //       current = PlayerState.walk;
-  //       break;
-  //     case PlayerDirection.none:
-  //       current = PlayerState.idle;
-  //       break;
-  //   }
-  // }
-
   void _updatePlayerState() {
     PlayerState playerState = PlayerState.idle;
 
@@ -284,13 +211,19 @@ class Player extends SpriteAnimationGroupComponent
   void _updatePlayerMovement(double dt) {
     if (hasJumped && isOnGround) _playerJump(dt);
 
-    // if (velocity.y > _gravity) isOnGround = false; // optional
+    if (velocity.y > _gravity * 15) isOnGround = false; // Coyote Time
 
     velocity.x = horizontalMovement * moveSpeed;
     if (isInQuickSand) {
       velocity.x *= 0.5; // Slow down movement in quicksand
     }
     position.x += velocity.x * dt;
+
+    // if player's position is outside the screen (Y > 380), respawn
+    if (position.y > 380) {
+      _respawn();
+      // return;
+    }
   }
 
   void _playerJump(double dt) {
@@ -306,24 +239,27 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkHorizontalCollisions() {
     for (final block in collisionBlocks) {
-      if (block.isQuickSand) {
-        if (checkCollision(this, block)) {
-          isInQuickSand = true;
-        } else {
-          isInQuickSand = false;
-        }
-      } else if (!block.isPlatform) {
+      if (!block.isPlatform && !block.isQuickSand) {
         if (checkCollision(this, block)) {
           if (velocity.x > 0) {
+            print(
+                'Collided with block on right ${block.isPlatform} ${block.isQuickSand}');
             velocity.x = 0;
             position.x = block.x - hitbox.offsetX - hitbox.width;
             break;
           }
           if (velocity.x < 0) {
+            print('Collided with block on left');
             velocity.x = 0;
             position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
             break;
           }
+        }
+      } else if (block.isQuickSand) {
+        if (checkCollision(this, block)) {
+          isInQuickSand = true;
+        } else {
+          isInQuickSand = false;
         }
       }
     }
@@ -339,6 +275,7 @@ class Player extends SpriteAnimationGroupComponent
     for (final block in collisionBlocks) {
       if (block.isPlatform) {
         if (checkCollision(this, block)) {
+          print('Collided with platform');
           if (velocity.y > 0) {
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
@@ -348,16 +285,18 @@ class Player extends SpriteAnimationGroupComponent
         }
       } else if (block.isQuickSand) {
         if (checkCollision(this, block)) {
+          print('Collided with quicksand');
           if (velocity.y > 0) {
             velocity.y = 0;
             isOnGround = true;
             break;
           }
           // Slow down the player in quicksand
-          velocity.x *= 0.1; // Adjust the factor as needed
+          velocity.x *= 0.1;
         }
       } else {
         if (checkCollision(this, block)) {
+          print('Collided with block');
           if (velocity.y > 0) {
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
@@ -375,24 +314,24 @@ class Player extends SpriteAnimationGroupComponent
 
   void _respawn() async {
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
-    const canMoveDuration = Duration(milliseconds: 400);
-    gotHit = true;
-    current = PlayerState.hit;
+    // const canMoveDuration = Duration(milliseconds: 400);
+    // gotHit = true;
+    // current = PlayerState.hit;
 
-    await animationTicker?.completed;
-    animationTicker?.reset();
+    // await animationTicker?.completed;
+    // animationTicker?.reset();
 
-    scale.x = 1;
+    // scale.x = 1;
     position = startingPosition - Vector2.all(32);
     current = PlayerState.appearing;
 
-    await animationTicker?.completed;
-    animationTicker?.reset();
+    // await animationTicker?.completed;
+    // animationTicker?.reset();
 
     velocity = Vector2.zero();
-    position = startingPosition;
-    _updatePlayerState();
-    Future.delayed(canMoveDuration, () => gotHit = false);
+    // position = startingPosition;
+    // _updatePlayerState();
+    // Future.delayed(canMoveDuration, () => gotHit = false);
   }
 
   void _reachedCheckpoint() async {
