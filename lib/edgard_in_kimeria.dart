@@ -15,11 +15,7 @@ class EdgardInKimeria extends FlameGame<World>
         DragCallbacks,
         HasCollisionDetection,
         TapCallbacks {
-  // @override
-  // Color backgroundColor() => const Color.fromARGB(255, 2, 9, 52);
   final player = Player();
-  late CameraComponent cam;
-
   late JoystickComponent joystick;
   bool showControls = false;
   bool playSounds = true;
@@ -29,18 +25,7 @@ class EdgardInKimeria extends FlameGame<World>
 
   @override
   FutureOr<void> onLoad() async {
-    // final world = Forest(levelName: 'forest', player: player);
-
     await images.loadAllImages();
-
-    // // Set the initial camera position if needed
-    // _camera = CameraComponent.withFixedResolution(
-    //     width: 640, height: 360, world: world);
-    // _camera.viewfinder.anchor = Anchor.topLeft;
-    // addAll([
-    //   _camera,
-    //   world,
-    // ]);
 
     _loadLevel();
 
@@ -117,14 +102,14 @@ class EdgardInKimeria extends FlameGame<World>
         levelName: levelNames[currentLevelIndex],
       );
 
-      cam = CameraComponent.withFixedResolution(
+      camera = CameraComponent.withFixedResolution(
         world: world,
         width: 640,
         height: 360,
       );
-      cam.viewfinder.anchor = Anchor.topLeft;
+      camera.viewfinder.anchor = Anchor.topLeft;
 
-      addAll([cam, world]);
+      addAll([world]);
     });
   }
 }

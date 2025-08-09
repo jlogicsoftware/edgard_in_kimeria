@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame/parallax.dart';
-import 'package:flutter/material.dart';
 
 class SkyTile extends ParallaxComponent<EdgardInKimeria> {
   SkyTile();
