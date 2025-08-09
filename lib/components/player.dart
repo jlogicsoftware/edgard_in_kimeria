@@ -78,6 +78,8 @@ class Player extends SpriteAnimationGroupComponent
 
   bool isInQuickSand = false;
 
+  static const kLeftFollow = 200;
+
   @override
   FutureOr<void> onLoad() {
     _loadAllAnimations();
@@ -99,6 +101,7 @@ class Player extends SpriteAnimationGroupComponent
 
     while (accumulatedTime >= fixedDeltaTime) {
       if (!gotHit && !reachedCheckpoint) {
+        _updateCameraPosition();
         _updatePlayerState();
         _updatePlayerMovement(fixedDeltaTime);
         _checkHorizontalCollisions();
@@ -149,11 +152,11 @@ class Player extends SpriteAnimationGroupComponent
       position: Vector2(0, 48 * 0),
     );
     jumpingAnimation = _spriteAnimation(
-        image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
+        image: 'hero/Player.png', amount: 1, position: Vector2(0, 48 * 8));
     fallingAnimation = _spriteAnimation(
-        image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
+        image: 'hero/Player.png', amount: 1, position: Vector2(0, 48 * 4));
     hitAnimation = _spriteAnimation(
-        image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6))
+        image: 'hero/Player.png', amount: 2, position: Vector2(0, 48 * 4))
       ..loop = false;
     appearingAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
@@ -185,6 +188,17 @@ class Player extends SpriteAnimationGroupComponent
         loop: true,
       ),
     );
+  }
+
+  void _updateCameraPosition() {
+    if (position.x > kLeftFollow) {
+      game.camera.moveTo(
+        Vector2(
+          position.x - kLeftFollow,
+          position.y - 155,
+        ),
+      );
+    }
   }
 
   void _updatePlayerState() {

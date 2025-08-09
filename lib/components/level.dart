@@ -1,10 +1,11 @@
 import 'package:edgard_in_kimeria/components/background_tile.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
+import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
-class Level extends World {
+class Level extends World with HasGameReference<EdgardInKimeria> {
   Level({required this.levelName, required this.player});
 
   final String levelName;
@@ -27,7 +28,7 @@ class Level extends World {
 
   void _loadBackground() {
     final skyTile = SkyTile();
-    add(skyTile);
+    game.camera.backdrop = skyTile;
   }
 
   void _spawningObjects() {
