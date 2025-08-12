@@ -7,6 +7,7 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
 import 'package:edgard_in_kimeria/components/level.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/painting.dart';
 
 class EdgardInKimeria extends FlameGame<World>
@@ -16,6 +17,9 @@ class EdgardInKimeria extends FlameGame<World>
         HasCollisionDetection,
         TapCallbacks {
   final player = Player();
+  late AudioPool jumpPool;
+  late AudioPool bouncePool;
+  late AudioPool collectPool;
   late JoystickComponent joystick;
   bool showControls = false;
   bool playSounds = true;
@@ -26,6 +30,18 @@ class EdgardInKimeria extends FlameGame<World>
   @override
   FutureOr<void> onLoad() async {
     await images.loadAllImages();
+    await FlameAudio.audioCache.loadAll([
+      'jump.wav',
+      'hit.wav',
+      'collect.wav',
+      // ...other sounds
+    ]);
+    // Warm up the audio engine by playing a silent sound
+    await FlameAudio.play('jump.wav', volume: 0);
+    // Create AudioPool for jump sound
+    jumpPool = await FlameAudio.createPool('jump.wav', maxPlayers: 3);
+    bouncePool = await FlameAudio.createPool('bounce.wav', maxPlayers: 3);
+    collectPool = await FlameAudio.createPool('collect.wav', maxPlayers: 3);
 
     _loadLevel();
 

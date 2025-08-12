@@ -1,4 +1,5 @@
 import 'package:edgard_in_kimeria/components/background_tile.dart';
+import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
@@ -41,14 +42,14 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             player.scale.x = 1;
             add(player);
             break;
-          // case 'Fruit':
-          //   final fruit = Fruit(
-          //     fruit: spawnPoint.name,
-          //     position: Vector2(spawnPoint.x, spawnPoint.y),
-          //     size: Vector2(spawnPoint.width, spawnPoint.height),
-          //   );
-          //   add(fruit);
-          //   break;
+          case 'Collectable':
+            final collectable = Collectable(
+              collectableName: spawnPoint.name,
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(collectable);
+            break;
           // case 'Saw':
           //   final isVertical = spawnPoint.properties.getValue('isVertical');
           //   final offNeg = spawnPoint.properties.getValue('offNeg');
