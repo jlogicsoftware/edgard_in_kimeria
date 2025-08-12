@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="37">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="41">
  <tileset firstgid="1" source="Forest.tsx"/>
  <layer id="1" name="Background" width="80" height="23">
   <data encoding="csv">
@@ -31,6 +31,9 @@
  <objectgroup id="2" name="SpawnPoints" offsetx="0" offsety="-16">
   <object id="3" name="Player" type="Player" x="65.006" y="270.811" width="48.8845" height="48.8845"/>
   <object id="16" name="YellowMob" type="YellowMob" x="432" y="272" width="48" height="48"/>
+  <object id="37" name="Coin" type="Collectable" x="336" y="304" width="16" height="16"/>
+  <object id="39" name="Coin" type="Collectable" x="368" y="224" width="16" height="16"/>
+  <object id="40" name="Heart" type="Collectable" x="656" y="304" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="Collisions">
   <object id="4" x="0" y="0" width="16" height="320"/>

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/yellow_mob.dart';
@@ -48,16 +49,17 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation appearingAnimation;
   late final SpriteAnimation disappearingAnimation;
 
-  final kStepTime = 0.1;
+  static const kStepTime = 0.1;
+  static const kWalkSpeed = 50.0;
+  static const kRunSpeed = 100.0;
+
   var playerDirection = PlayerDirection.none;
-  final walkSpeed = 50.0;
-  final runSpeed = 100.0;
-  // var velocity = Vector2.zero();
   bool isPlayerFacingRight = true;
 
-  final double _gravity = 9.8;
-  final double _jumpForce = 260;
-  final double _terminalVelocity = 300;
+  static const kGravity = 9.8;
+  static const kJumpForce = 260.0;
+  static const kTerminalVelocity = 300.0;
+
   double horizontalMovement = 0;
   double moveSpeed = 100;
   Vector2 startingPosition = Vector2.zero();
@@ -73,12 +75,13 @@ class Player extends SpriteAnimationGroupComponent
     width: 15,
     height: 28,
   );
-  double fixedDeltaTime = 1 / 60;
+  static const kFixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
 
   bool isInQuickSand = false;
 
   static const kLeftFollow = 200;
+  static const kUpFollow = 200;
 
   @override
   FutureOr<void> onLoad() {
@@ -92,24 +95,29 @@ class Player extends SpriteAnimationGroupComponent
       size: Vector2(hitbox.width, hitbox.height),
     ));
 
+    game.camera.moveTo(
+      startingPosition - Vector2.array([200, 200]),
+      speed: 500,
+    );
+
     return super.onLoad();
   }
 
   @override
   void update(double dt) {
     accumulatedTime += dt;
+    _updateCameraPosition();
 
-    while (accumulatedTime >= fixedDeltaTime) {
+    while (accumulatedTime >= kFixedDeltaTime) {
       if (!gotHit && !reachedCheckpoint) {
-        _updateCameraPosition();
         _updatePlayerState();
-        _updatePlayerMovement(fixedDeltaTime);
+        _updatePlayerMovement(kFixedDeltaTime);
         _checkHorizontalCollisions();
-        _applyGravity(fixedDeltaTime);
+        _applyGravity(kFixedDeltaTime);
         _checkVerticalCollisions();
       }
 
-      accumulatedTime -= fixedDeltaTime;
+      accumulatedTime -= kFixedDeltaTime;
     }
 
     super.update(dt);
@@ -128,14 +136,15 @@ class Player extends SpriteAnimationGroupComponent
 
     hasJumped = keysPressed.contains(LogicalKeyboardKey.space);
 
-    return super.onKeyEvent(event, keysPressed);
+    // return super.onKeyEvent(event, keysPressed);
+    return false;
   }
 
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!reachedCheckpoint) {
-      // if (other is Fruit) other.collidedWithPlayer();
+      if (other is Collectable) other.collideWithPlayer();
       // if (other is Saw) _respawn();
       if (other is YellowMob) other.collidedWithPlayer();
       // if (other is Checkpoint) _reachedCheckpoint();
@@ -191,12 +200,21 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _updateCameraPosition() {
-    if (position.x > kLeftFollow) {
+    if (isPlayerFacingRight) {
       game.camera.moveTo(
         Vector2(
-          position.x - kLeftFollow,
-          position.y - 155,
+          position.x - kLeftFollow - hitbox.width,
+          position.y - kUpFollow,
         ),
+        speed: 500,
+      );
+    } else {
+      game.camera.moveTo(
+        Vector2(
+          position.x - kLeftFollow * 2 - hitbox.width * 3,
+          position.y - kUpFollow,
+        ),
+        speed: 500,
       );
     }
   }
@@ -206,8 +224,10 @@ class Player extends SpriteAnimationGroupComponent
 
     if (velocity.x < 0 && scale.x > 0) {
       flipHorizontallyAroundCenter();
+      isPlayerFacingRight = false;
     } else if (velocity.x > 0 && scale.x < 0) {
       flipHorizontallyAroundCenter();
+      isPlayerFacingRight = true;
     }
 
     // Check if moving, set running
@@ -225,11 +245,11 @@ class Player extends SpriteAnimationGroupComponent
   void _updatePlayerMovement(double dt) {
     if (hasJumped && isOnGround) _playerJump(dt);
 
-    if (velocity.y > _gravity * 15) isOnGround = false; // Coyote Time
+    if (velocity.y > kGravity * 15) isOnGround = false; // Coyote Time
 
     velocity.x = horizontalMovement * moveSpeed;
     if (isInQuickSand) {
-      velocity.x *= 0.5; // Slow down movement in quicksand
+      velocity.x *= 0.1; // Strong slow down movement in quicksand
     }
     position.x += velocity.x * dt;
 
@@ -240,8 +260,10 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _playerJump(double dt) {
-    if (game.playSounds) FlameAudio.play('jump.wav', volume: game.soundVolume);
-    velocity.y = -_jumpForce;
+    if (game.playSounds) {
+      game.jumpPool.start(volume: game.soundVolume);
+    }
+    velocity.y = -kJumpForce;
     if (isInQuickSand) {
       velocity.y *= 0.5; // Slow down jump in quicksand
     }
@@ -276,8 +298,8 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _applyGravity(double dt) {
-    velocity.y += _gravity;
-    velocity.y = velocity.y.clamp(-_jumpForce, _terminalVelocity);
+    velocity.y += kGravity;
+    velocity.y = velocity.y.clamp(-kJumpForce, kTerminalVelocity);
     position.y += velocity.y * dt;
   }
 
@@ -299,8 +321,7 @@ class Player extends SpriteAnimationGroupComponent
             isOnGround = true;
             break;
           }
-          // Slow down the player in quicksand
-          velocity.x *= 0.1;
+          // Removed velocity.x *= 0.1; from here for consistency
         }
       } else {
         if (checkCollision(this, block)) {
@@ -329,7 +350,7 @@ class Player extends SpriteAnimationGroupComponent
     // animationTicker?.reset();
 
     // scale.x = 1;
-    position = startingPosition - Vector2.all(32);
+    position = startingPosition + Vector2.all(32);
     current = PlayerState.appearing;
 
     // await animationTicker?.completed;
@@ -337,8 +358,9 @@ class Player extends SpriteAnimationGroupComponent
 
     velocity = Vector2.zero();
     // position = startingPosition;
-    // _updatePlayerState();
+    _updatePlayerState();
     // Future.delayed(canMoveDuration, () => gotHit = false);
+    game.camera.moveTo(Vector2.all(0), speed: 500);
   }
 
   void _reachedCheckpoint() async {
