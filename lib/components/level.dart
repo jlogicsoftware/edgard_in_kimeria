@@ -1,4 +1,5 @@
 import 'package:edgard_in_kimeria/components/background_tile.dart';
+import 'package:edgard_in_kimeria/components/bat.dart';
 import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
@@ -50,19 +51,19 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             add(collectable);
             break;
-          // case 'Saw':
-          //   final isVertical = spawnPoint.properties.getValue('isVertical');
-          //   final offNeg = spawnPoint.properties.getValue('offNeg');
-          //   final offPos = spawnPoint.properties.getValue('offPos');
-          //   final saw = Saw(
-          //     isVertical: isVertical,
-          //     offNeg: offNeg,
-          //     offPos: offPos,
-          //     position: Vector2(spawnPoint.x, spawnPoint.y),
-          //     size: Vector2(spawnPoint.width, spawnPoint.height),
-          //   );
-          //   add(saw);
-          //   break;
+          case 'Bat':
+            final isVertical = spawnPoint.properties.getValue('isVertical');
+            final offNeg = spawnPoint.properties.getValue('offNeg');
+            final offPos = spawnPoint.properties.getValue('offPos');
+            final bat = Bat(
+              isVertical: isVertical,
+              offNeg: offNeg,
+              offPos: offPos,
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(bat);
+            break;
           // case 'Checkpoint':
           //   final checkpoint = Checkpoint(
           //     position: Vector2(spawnPoint.x, spawnPoint.y),

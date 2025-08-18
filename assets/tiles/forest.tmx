@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="41">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="44">
  <tileset firstgid="1" source="Forest.tsx"/>
  <layer id="1" name="Background" width="80" height="23">
   <data encoding="csv">
@@ -34,6 +34,20 @@
   <object id="37" name="Coin" type="Collectable" x="336" y="304" width="16" height="16"/>
   <object id="39" name="Coin" type="Collectable" x="368" y="224" width="16" height="16"/>
   <object id="40" name="Heart" type="Collectable" x="656" y="304" width="16" height="16"/>
+  <object id="41" name="Bat" type="Bat" x="272" y="240" width="16" height="16">
+   <properties>
+    <property name="isVertical" type="bool" value="true"/>
+    <property name="offNeg" type="float" value="2"/>
+    <property name="offPos" type="float" value="5"/>
+   </properties>
+  </object>
+  <object id="43" name="Bat" type="Bat" x="512" y="304" width="16" height="16">
+   <properties>
+    <property name="isVertical" type="bool" value="false"/>
+    <property name="offNeg" type="float" value="1"/>
+    <property name="offPos" type="float" value="7"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="3" name="Collisions">
   <object id="4" x="0" y="0" width="16" height="320"/>
