@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:edgard_in_kimeria/components/bat.dart';
 import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
@@ -145,7 +146,7 @@ class Player extends SpriteAnimationGroupComponent
       Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!reachedCheckpoint) {
       if (other is Collectable) other.collideWithPlayer();
-      // if (other is Saw) _respawn();
+      if (other is Bat) _respawn();
       if (other is YellowMob) other.collidedWithPlayer();
       // if (other is Checkpoint) _reachedCheckpoint();
     }
@@ -342,24 +343,24 @@ class Player extends SpriteAnimationGroupComponent
 
   void _respawn() async {
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
-    // const canMoveDuration = Duration(milliseconds: 400);
-    // gotHit = true;
-    // current = PlayerState.hit;
+    const canMoveDuration = Duration(milliseconds: 400);
+    gotHit = true;
+    current = PlayerState.hit;
 
-    // await animationTicker?.completed;
-    // animationTicker?.reset();
+    await animationTicker?.completed;
+    animationTicker?.reset();
 
     // scale.x = 1;
-    position = startingPosition + Vector2.all(32);
-    current = PlayerState.appearing;
+    // position = startingPosition + Vector2.all(32);
+    // current = PlayerState.appearing;
 
-    // await animationTicker?.completed;
-    // animationTicker?.reset();
+    await animationTicker?.completed;
+    animationTicker?.reset();
 
     velocity = Vector2.zero();
-    // position = startingPosition;
+    position = startingPosition - Vector2.all(16);
     _updatePlayerState();
-    // Future.delayed(canMoveDuration, () => gotHit = false);
+    Future.delayed(canMoveDuration, () => gotHit = false);
     game.camera.moveTo(Vector2.all(0), speed: 500);
   }
 

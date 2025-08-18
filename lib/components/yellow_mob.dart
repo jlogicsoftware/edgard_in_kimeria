@@ -5,7 +5,6 @@ import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame_audio/flame_audio.dart';
 
 enum State { idle, run, hit }
 
@@ -136,7 +135,7 @@ class YellowMob extends SpriteAnimationGroupComponent
   void collidedWithPlayer() async {
     if (player.velocity.y > 0 && player.y + player.height > position.y) {
       if (game.playSounds) {
-        FlameAudio.play('bounce.wav', volume: game.soundVolume);
+        game.bouncePool.start(volume: game.soundVolume);
       }
       gotStomped = true;
       current = State.hit;
