@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -13,10 +12,10 @@ class Collectable extends SpriteAnimationComponent
       : super(
           position: position ?? Vector2.zero(),
           size: size ?? Vector2.all(16.0),
+          anchor: Anchor.topLeft,
         );
 
   static const kStepTime = 0.3;
-  final hitbox = CustomHitbox(offsetX: 2, offsetY: 2, width: 12, height: 12);
   bool isCollected = false;
 
   @override
@@ -24,13 +23,11 @@ class Collectable extends SpriteAnimationComponent
     debugMode = true;
     priority = 1;
 
-    add(
-      RectangleHitbox(
-        size: Vector2(hitbox.width, hitbox.height),
-        position: Vector2(hitbox.offsetX, hitbox.offsetY),
-        collisionType: CollisionType.passive,
-      ),
-    );
+    add(CircleHitbox(
+      radius: 8,
+      position: Vector2.zero(),
+      collisionType: CollisionType.passive,
+    ));
     animation = SpriteAnimation.fromFrameData(
       game.images.fromCache('Items.png'),
       SpriteAnimationData.sequenced(

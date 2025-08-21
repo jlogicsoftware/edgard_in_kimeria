@@ -18,6 +18,7 @@ class Bat extends SpriteAnimationComponent
   }) : super(
           position: position,
           size: size,
+          anchor: Anchor.topLeft,
         );
 
   static const double batSpeed = 0.03;
@@ -29,8 +30,9 @@ class Bat extends SpriteAnimationComponent
 
   @override
   FutureOr<void> onLoad() {
-    priority = -1;
+    priority = 1;
     add(CircleHitbox());
+    debugMode = true;
 
     if (isVertical) {
       rangeNeg = position.y - offNeg * tileSize;

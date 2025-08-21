@@ -19,7 +19,8 @@ enum PlayerState {
   falling,
   hit,
   appearing,
-  disappearing
+  disappearing,
+  climbing
 }
 
 enum PlayerDirection {
@@ -49,6 +50,7 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation hitAnimation;
   late final SpriteAnimation appearingAnimation;
   late final SpriteAnimation disappearingAnimation;
+  late final SpriteAnimation climbingAnimation;
 
   static const kStepTime = 0.1;
   static const kWalkSpeed = 50.0;
@@ -66,20 +68,22 @@ class Player extends SpriteAnimationGroupComponent
   Vector2 startingPosition = Vector2.zero();
   Vector2 velocity = Vector2.zero();
   bool isOnGround = false;
-  bool hasJumped = false;
-  bool gotHit = false;
-  bool reachedCheckpoint = false;
+  bool isJumping = false;
+  bool isGotHit = false;
+  bool isReachedCheckpoint = false;
   List<CollisionBlock> collisionBlocks = [];
   CustomHitbox hitbox = CustomHitbox(
-    offsetX: 16,
-    offsetY: 20,
-    width: 15,
-    height: 28,
+    offsetX: 18,
+    offsetY: 26,
+    width: 11,
+    height: 22,
   );
   static const kFixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
 
   bool isInQuickSand = false;
+  bool isClambering = false;
+  bool isWallJumping = false;
 
   static const kLeftFollow = 200;
   static const kUpFollow = 200;
@@ -110,7 +114,7 @@ class Player extends SpriteAnimationGroupComponent
     _updateCameraPosition();
 
     while (accumulatedTime >= kFixedDeltaTime) {
-      if (!gotHit && !reachedCheckpoint) {
+      if (!isGotHit && !isReachedCheckpoint) {
         _updatePlayerState();
         _updatePlayerMovement(kFixedDeltaTime);
         _checkHorizontalCollisions();
@@ -135,16 +139,15 @@ class Player extends SpriteAnimationGroupComponent
     horizontalMovement += isLeftKeyPressed ? -1 : 0;
     horizontalMovement += isRightKeyPressed ? 1 : 0;
 
-    hasJumped = keysPressed.contains(LogicalKeyboardKey.space);
+    isJumping = keysPressed.contains(LogicalKeyboardKey.space);
 
-    // return super.onKeyEvent(event, keysPressed);
     return false;
   }
 
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (!reachedCheckpoint) {
+    if (!isReachedCheckpoint) {
       if (other is Collectable) other.collideWithPlayer();
       if (other is Bat) _respawn();
       if (other is YellowMob) other.collidedWithPlayer();
@@ -172,6 +175,8 @@ class Player extends SpriteAnimationGroupComponent
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
     disappearingAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
+    climbingAnimation = _spriteAnimation(
+        image: 'hero/Player.png', amount: 1, position: Vector2(0, 48 * 3));
 
     // List of all animations
     animations = {
@@ -182,6 +187,7 @@ class Player extends SpriteAnimationGroupComponent
       PlayerState.hit: hitAnimation,
       PlayerState.appearing: appearingAnimation,
       PlayerState.disappearing: disappearingAnimation,
+      PlayerState.climbing: climbingAnimation,
     };
     current = PlayerState.idle;
   }
@@ -240,37 +246,59 @@ class Player extends SpriteAnimationGroupComponent
     // Checks if jumping, set to jumping
     if (velocity.y < 0) playerState = PlayerState.jumping;
 
+    if (isClambering) playerState = PlayerState.climbing;
+
     current = playerState;
   }
 
   void _updatePlayerMovement(double dt) {
-    if (hasJumped && isOnGround) _playerJump(dt);
+    if (isJumping && (isOnGround || isClambering)) _playerJump(dt);
 
     if (velocity.y > kGravity * 15) isOnGround = false; // Coyote Time
 
-    velocity.x = horizontalMovement * moveSpeed;
-    if (isInQuickSand) {
-      velocity.x *= 0.1; // Strong slow down movement in quicksand
+    if (!isWallJumping) {
+      velocity.x = horizontalMovement * moveSpeed;
+      if (isInQuickSand) {
+        velocity.x *= 0.1; // Strong slow down movement in quicksand
+      }
     }
     position.x += velocity.x * dt;
 
-    // if player's position is outside the screen (Y > 380), respawn
+    if (isClambering) {
+      velocity.y *= 0.1; // Slow down movement while climbing
+    }
+    // Die if player's position is outside the screen
     if (position.y > 380) {
       _respawn();
     }
   }
 
-  void _playerJump(double dt) {
+  void _playerJump(double dt) async {
     if (game.playSounds) {
       game.jumpPool.start(volume: game.soundVolume);
     }
-    velocity.y = -kJumpForce;
-    if (isInQuickSand) {
-      velocity.y *= 0.5; // Slow down jump in quicksand
+    if (isClambering) {
+      velocity.y = -kJumpForce * 0.7;
+      if (horizontalMovement < 0) {
+        velocity.x = kJumpForce * 0.5;
+      } else if (horizontalMovement > 0) {
+        velocity.x = -kJumpForce * 0.5;
+      } else {
+        velocity.x = isPlayerFacingRight ? -kJumpForce * 0.5 : kJumpForce * 0.5;
+      }
+      isClambering = false;
+      isWallJumping = true;
+      Future.delayed(
+          const Duration(milliseconds: 100), () => isWallJumping = false);
+    } else {
+      velocity.y = -kJumpForce;
+      if (isInQuickSand) {
+        velocity.y *= 0.1; // Slow down jump in quicksand
+      }
     }
     position.y += velocity.y * dt;
     isOnGround = false;
-    hasJumped = false;
+    isJumping = false;
   }
 
   void _checkHorizontalCollisions() {
@@ -280,13 +308,21 @@ class Player extends SpriteAnimationGroupComponent
           if (velocity.x > 0) {
             velocity.x = 0;
             position.x = block.x - hitbox.offsetX - hitbox.width;
+            if (!isOnGround) {
+              isClambering = true;
+            }
             break;
           }
           if (velocity.x < 0) {
             velocity.x = 0;
             position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            if (!isOnGround) {
+              isClambering = true;
+            }
             break;
           }
+        } else {
+          isClambering = false;
         }
       } else if (block.isQuickSand) {
         if (checkCollision(this, block)) {
@@ -344,28 +380,23 @@ class Player extends SpriteAnimationGroupComponent
   void _respawn() async {
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
     const canMoveDuration = Duration(milliseconds: 400);
-    gotHit = true;
+    isGotHit = true;
     current = PlayerState.hit;
 
     await animationTicker?.completed;
     animationTicker?.reset();
 
-    // scale.x = 1;
-    // position = startingPosition + Vector2.all(32);
-    // current = PlayerState.appearing;
-
-    await animationTicker?.completed;
-    animationTicker?.reset();
-
+    scale.x = 1;
     velocity = Vector2.zero();
-    position = startingPosition - Vector2.all(16);
+    current = PlayerState.appearing;
+    position = startingPosition;
     _updatePlayerState();
-    Future.delayed(canMoveDuration, () => gotHit = false);
+    Future.delayed(canMoveDuration, () => isGotHit = false);
     game.camera.moveTo(Vector2.all(0), speed: 500);
   }
 
   void _reachedCheckpoint() async {
-    reachedCheckpoint = true;
+    isReachedCheckpoint = true;
     if (game.playSounds) {
       FlameAudio.play('disappear.wav', volume: game.soundVolume);
     }
@@ -380,7 +411,7 @@ class Player extends SpriteAnimationGroupComponent
     await animationTicker?.completed;
     animationTicker?.reset();
 
-    reachedCheckpoint = false;
+    isReachedCheckpoint = false;
     position = Vector2.all(-640);
 
     const waitToChangeDuration = Duration(seconds: 3);
