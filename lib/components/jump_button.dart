@@ -24,13 +24,13 @@ class JumpButton extends SpriteComponent
 
   @override
   void onTapDown(TapDownEvent event) {
-    game.player.hasJumped = true;
+    game.player.isJumping = true;
     super.onTapDown(event);
   }
 
   @override
   void onTapUp(TapUpEvent event) {
-    game.player.hasJumped = false;
+    game.player.isJumping = false;
     super.onTapUp(event);
   }
 }
