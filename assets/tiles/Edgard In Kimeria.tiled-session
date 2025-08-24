@@ -7,6 +7,7 @@
     "expandedProjectPaths": [
         "."
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "Forest.tsx": {
             "dynamicWrapping": false,
@@ -18,11 +19,11 @@
             "scaleInEditor": 3.2218
         },
         "forest-1.tmx": {
-            "scale": 0.7657,
+            "scale": 1.4534,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 319.9686561316442,
-                "y": 183.49222933263684
+                "x": 383.92734278244114,
+                "y": 190.93160864180544
             }
         },
         "forest.tmx": {
@@ -30,11 +31,11 @@
                 2,
                 3
             ],
-            "scale": 2.1608,
-            "selectedLayer": 1,
+            "scale": 0.8092,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 640.040725657164,
-                "y": 183.95964457608292
+                "x": 312.65447355412743,
+                "y": 399.7775580820563
             }
         }
     },

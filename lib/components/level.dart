@@ -1,5 +1,6 @@
 import 'package:edgard_in_kimeria/components/background_tile.dart';
 import 'package:edgard_in_kimeria/components/bat.dart';
+import 'package:edgard_in_kimeria/components/checkpoint.dart';
 import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
@@ -64,13 +65,13 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             add(bat);
             break;
-          // case 'Checkpoint':
-          //   final checkpoint = Checkpoint(
-          //     position: Vector2(spawnPoint.x, spawnPoint.y),
-          //     size: Vector2(spawnPoint.width, spawnPoint.height),
-          //   );
-          //   add(checkpoint);
-          //   break;
+          case 'Checkpoint':
+            final checkpoint = Checkpoint(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(checkpoint);
+            break;
           // case 'YellowMob':
           //   print(spawnPoint.properties);
           //   final offNeg = spawnPoint.properties.getValue('offNeg');
@@ -112,6 +113,15 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             collisionBlocks.add(quickSand);
             add(quickSand);
+          case 'Wall':
+            final wall = CollisionBlock(
+              position: Vector2(collision.x, collision.y),
+              size: Vector2(collision.width, collision.height),
+              isWall: true,
+            );
+            collisionBlocks.add(wall);
+            add(wall);
+            break;
           default:
             final block = CollisionBlock(
               position: Vector2(collision.x, collision.y),

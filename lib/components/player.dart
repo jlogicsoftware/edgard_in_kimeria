@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:edgard_in_kimeria/components/bat.dart';
+import 'package:edgard_in_kimeria/components/checkpoint.dart';
 import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
@@ -114,6 +115,9 @@ class Player extends SpriteAnimationGroupComponent
     _updateCameraPosition();
 
     while (accumulatedTime >= kFixedDeltaTime) {
+      if (isReachedCheckpoint) {
+        print('Player is in hit or checkpoint state');
+      }
       if (!isGotHit && !isReachedCheckpoint) {
         _updatePlayerState();
         _updatePlayerMovement(kFixedDeltaTime);
@@ -151,7 +155,7 @@ class Player extends SpriteAnimationGroupComponent
       if (other is Collectable) other.collideWithPlayer();
       if (other is Bat) _respawn();
       if (other is YellowMob) other.collidedWithPlayer();
-      // if (other is Checkpoint) _reachedCheckpoint();
+      if (other is Checkpoint) _reachedCheckpoint();
     }
     super.onCollisionStart(intersectionPoints, other);
   }
@@ -303,7 +307,13 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkHorizontalCollisions() {
     for (final block in collisionBlocks) {
-      if (!block.isPlatform && !block.isQuickSand) {
+      if (block.isQuickSand) {
+        if (checkCollision(this, block)) {
+          isInQuickSand = true;
+        } else {
+          isInQuickSand = false;
+        }
+      } else if (block.isWall) {
         if (checkCollision(this, block)) {
           if (velocity.x > 0) {
             velocity.x = 0;
@@ -324,11 +334,18 @@ class Player extends SpriteAnimationGroupComponent
         } else {
           isClambering = false;
         }
-      } else if (block.isQuickSand) {
+      } else {
         if (checkCollision(this, block)) {
-          isInQuickSand = true;
-        } else {
-          isInQuickSand = false;
+          if (velocity.x > 0) {
+            velocity.x = 0;
+            position.x = block.x - hitbox.offsetX - hitbox.width;
+            break;
+          }
+          if (velocity.x < 0) {
+            velocity.x = 0;
+            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            break;
+          }
         }
       }
     }
@@ -397,25 +414,30 @@ class Player extends SpriteAnimationGroupComponent
 
   void _reachedCheckpoint() async {
     isReachedCheckpoint = true;
+    print('Reached Checkpoint $isReachedCheckpoint');
     if (game.playSounds) {
       FlameAudio.play('disappear.wav', volume: game.soundVolume);
     }
-    if (scale.x > 0) {
-      position = position - Vector2.all(32);
-    } else if (scale.x < 0) {
-      position = position + Vector2(32, -32);
-    }
+    // if (scale.x > 0) {
+    //   position = position - Vector2.all(32);
+    // } else if (scale.x < 0) {
+    //   position = position + Vector2(32, -32);
+    // }
 
     current = PlayerState.disappearing;
 
-    await animationTicker?.completed;
-    animationTicker?.reset();
+    // await animationTicker?.completed;
+    // print('Animation completed');
+    // animationTicker?.reset();
+    print('Loading next level...');
 
-    isReachedCheckpoint = false;
-    position = Vector2.all(-640);
+    // position = Vector2.all(-640);
 
     const waitToChangeDuration = Duration(seconds: 3);
-    Future.delayed(waitToChangeDuration, () => game.loadNextLevel());
+    Future.delayed(waitToChangeDuration, () {
+      isReachedCheckpoint = false;
+      game.loadNextLevel();
+    });
   }
 
   void collidedWithEnemy() {
