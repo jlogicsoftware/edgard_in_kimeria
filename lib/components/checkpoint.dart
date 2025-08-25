@@ -8,12 +8,9 @@ import 'package:flame/components.dart';
 class Checkpoint extends SpriteAnimationComponent
     with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
   Checkpoint({
-    position,
-    size,
-  }) : super(
-          position: position,
-          size: size,
-        );
+    super.position,
+    super.size,
+  });
 
   @override
   FutureOr<void> onLoad() {

@@ -13,13 +13,9 @@ class Bat extends SpriteAnimationComponent
     this.isVertical = false,
     this.offNeg = 0,
     this.offPos = 0,
-    position,
-    size,
-  }) : super(
-          position: position,
-          size: size,
-          anchor: Anchor.topLeft,
-        );
+    super.position,
+    super.size,
+  }) : super(anchor: Anchor.topLeft);
 
   static const double batSpeed = 0.03;
   static const moveSpeed = 50;

@@ -95,7 +95,7 @@ class YellowMob extends SpriteAnimationGroupComponent
     rangePos = position.x + offPos * tileSize;
   }
 
-  void _movement(dt) {
+  void _movement(double dt) {
     // set velocity to 0;
     velocity.x = 0;
 

@@ -19,6 +19,10 @@
             "scaleInEditor": 3.2218
         },
         "forest-1.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3
+            ],
             "scale": 1.4534,
             "selectedLayer": 1,
             "viewCenter": {
@@ -31,11 +35,11 @@
                 2,
                 3
             ],
-            "scale": 0.8092,
-            "selectedLayer": 0,
+            "scale": 1.5571,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 312.65447355412743,
-                "y": 399.7775580820563
+                "x": 1034.9367413782031,
+                "y": 389.50613319632646
             }
         }
     },

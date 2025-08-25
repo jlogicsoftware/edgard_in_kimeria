@@ -115,9 +115,6 @@ class Player extends SpriteAnimationGroupComponent
     _updateCameraPosition();
 
     while (accumulatedTime >= kFixedDeltaTime) {
-      if (isReachedCheckpoint) {
-        print('Player is in hit or checkpoint state');
-      }
       if (!isGotHit && !isReachedCheckpoint) {
         _updatePlayerState();
         _updatePlayerMovement(kFixedDeltaTime);
@@ -414,7 +411,6 @@ class Player extends SpriteAnimationGroupComponent
 
   void _reachedCheckpoint() async {
     isReachedCheckpoint = true;
-    print('Reached Checkpoint $isReachedCheckpoint');
     if (game.playSounds) {
       FlameAudio.play('disappear.wav', volume: game.soundVolume);
     }
@@ -425,13 +421,6 @@ class Player extends SpriteAnimationGroupComponent
     // }
 
     current = PlayerState.disappearing;
-
-    // await animationTicker?.completed;
-    // print('Animation completed');
-    // animationTicker?.reset();
-    print('Loading next level...');
-
-    // position = Vector2.all(-640);
 
     const waitToChangeDuration = Duration(seconds: 3);
     Future.delayed(waitToChangeDuration, () {
