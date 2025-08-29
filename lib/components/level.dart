@@ -4,6 +4,7 @@ import 'package:edgard_in_kimeria/components/checkpoint.dart';
 import 'package:edgard_in_kimeria/components/collectable.dart';
 import 'package:edgard_in_kimeria/components/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
+import 'package:edgard_in_kimeria/components/firefly.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -25,6 +26,13 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
     _loadBackground();
     _spawningObjects();
     _addCollisions();
+
+    // Add fireflies for level 1 (forest)
+    if (levelName == 'forest') {
+      for (int i = 0; i < 24; i++) {
+        add(Firefly(area: Vector2(level.size.x, level.size.y)));
+      }
+    }
 
     return super.onLoad();
   }

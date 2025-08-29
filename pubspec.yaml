@@ -13,9 +13,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  flame: ^1.29.0
-  flame_tiled: ^3.0.3
-  flame_audio: ^2.11.6
+  flame: ^1.32.0
+  flame_tiled: ^3.0.7
+  flame_audio: ^2.11.10
 
 dev_dependencies:
   flutter_test:
