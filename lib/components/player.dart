@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:edgard_in_kimeria/components/bat.dart';
-import 'package:edgard_in_kimeria/components/checkpoint.dart';
-import 'package:edgard_in_kimeria/components/collectable.dart';
-import 'package:edgard_in_kimeria/components/collision_block.dart';
+import 'package:edgard_in_kimeria/components/enemy/bat.dart';
+import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
+import 'package:edgard_in_kimeria/components/items/collectable.dart';
+import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
-import 'package:edgard_in_kimeria/components/yellow_mob.dart';
+import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
-import 'package:edgard_in_kimeria/components/utils.dart';
+import 'package:edgard_in_kimeria/utils/utils.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
