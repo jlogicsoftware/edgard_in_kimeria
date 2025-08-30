@@ -1,4 +1,4 @@
-import 'package:edgard_in_kimeria/components/collision_block.dart';
+import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 
 bool checkCollision(Player player, CollisionBlock block) {

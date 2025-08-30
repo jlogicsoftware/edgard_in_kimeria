@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:edgard_in_kimeria/components/player.dart';
-import 'package:edgard_in_kimeria/components/jump_button.dart';
+import 'package:edgard_in_kimeria/components/HUD/jump_button.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
-import 'package:edgard_in_kimeria/components/level.dart';
+import 'package:edgard_in_kimeria/levels/level.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/painting.dart';
 

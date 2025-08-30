@@ -1,10 +1,11 @@
-import 'package:edgard_in_kimeria/components/background_tile.dart';
-import 'package:edgard_in_kimeria/components/bat.dart';
-import 'package:edgard_in_kimeria/components/checkpoint.dart';
-import 'package:edgard_in_kimeria/components/collectable.dart';
-import 'package:edgard_in_kimeria/components/collision_block.dart';
+import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
+import 'package:edgard_in_kimeria/components/enemy/bat.dart';
+import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
+import 'package:edgard_in_kimeria/components/items/collectable.dart';
+import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
-import 'package:edgard_in_kimeria/components/firefly.dart';
+import 'package:edgard_in_kimeria/components/effects/firefly.dart';
+import 'package:edgard_in_kimeria/components/effects/rain.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -31,6 +32,13 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
     if (levelName == 'forest') {
       for (int i = 0; i < 24; i++) {
         add(Firefly(area: Vector2(level.size.x, level.size.y)));
+      }
+    }
+
+    // Add rain for level 2 (forest-1)
+    if (levelName == 'forest-1') {
+      for (int i = 0; i < 48; i++) {
+        add(RainDrop(area: Vector2(level.size.x, level.size.y)));
       }
     }
 
