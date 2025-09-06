@@ -50,11 +50,14 @@ class Bat extends SpriteAnimationComponent
 
   @override
   void update(double dt) {
+    // Use scaled dt for movement logic, but unscaled dt for animation
+    final scaledDt = dt * game.timeScale;
     if (isVertical) {
-      _moveVertically(dt);
+      _moveVertically(scaledDt);
     } else {
-      _moveHorizontally(dt);
+      _moveHorizontally(scaledDt);
     }
+    // Always update animation with real dt for smoothness
     super.update(dt);
   }
 

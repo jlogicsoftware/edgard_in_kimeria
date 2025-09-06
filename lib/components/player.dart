@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
@@ -111,7 +113,46 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   void update(double dt) {
-    accumulatedTime += dt;
+    // Bullet time: slow down if near a Bat (using hitboxes)
+    final bats = parent?.children.whereType<Bat>() ?? [];
+    bool nearBat = false;
+    // Get player's hitbox rect in world coordinates (handles flipping)
+    final playerHitbox = (children.whereType<ShapeHitbox>().isNotEmpty)
+        ? children.whereType<ShapeHitbox>().first.toAbsoluteRect()
+        : Rect.fromLTWH(
+            position.x + hitbox.offsetX,
+            position.y + hitbox.offsetY,
+            hitbox.width,
+            hitbox.height,
+          );
+    for (final bat in bats) {
+      // Try to get bat's hitbox (if it has one)
+      final batHitbox = bat.children.whereType<ShapeHitbox>().isNotEmpty
+          ? bat.children.whereType<ShapeHitbox>().first
+          : null;
+      if (batHitbox != null) {
+        final batRect = batHitbox.toAbsoluteRect();
+        // Compute min distance between rectangles
+        final dx = max(
+            0,
+            max(batRect.left - playerHitbox.right,
+                playerHitbox.left - batRect.right));
+        final dy = max(
+            0,
+            max(batRect.top - playerHitbox.bottom,
+                playerHitbox.top - batRect.bottom));
+        final dist = sqrt(dx * dx + dy * dy);
+        if (dist < 50) {
+          nearBat = true;
+          break;
+        }
+      }
+    }
+    game.timeScale = nearBat ? 0.25 : 1.0;
+
+    // Use scaled dt for gameplay logic, but unscaled dt for smooth visual updates
+    final scaledDt = dt * game.timeScale;
+    accumulatedTime += scaledDt;
     _updateCameraPosition();
 
     while (accumulatedTime >= kFixedDeltaTime) {
@@ -122,10 +163,10 @@ class Player extends SpriteAnimationGroupComponent
         _applyGravity(kFixedDeltaTime);
         _checkVerticalCollisions();
       }
-
       accumulatedTime -= kFixedDeltaTime;
     }
 
+    // Always update animation and position with real dt for smoothness
     super.update(dt);
   }
 

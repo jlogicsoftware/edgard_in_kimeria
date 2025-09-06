@@ -1,3 +1,4 @@
+import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
@@ -88,18 +89,17 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             add(checkpoint);
             break;
-          // case 'YellowMob':
-          //   print(spawnPoint.properties);
-          //   final offNeg = spawnPoint.properties.getValue('offNeg');
-          //   final offPos = spawnPoint.properties.getValue('offPos');
-          //   final yellowMob = YellowMob(
-          //     position: Vector2(spawnPoint.x, spawnPoint.y),
-          //     size: Vector2(spawnPoint.width, spawnPoint.height),
-          //     offNeg: offNeg,
-          //     offPos: offPos,
-          //   );
-          //   add(yellowMob);
-          //   break;
+          case 'YellowMob':
+            final offNeg = spawnPoint.properties.getValue('offNeg');
+            final offPos = spawnPoint.properties.getValue('offPos');
+            final yellowMob = YellowMob(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              offNeg: offNeg,
+              offPos: offPos,
+            );
+            add(yellowMob);
+            break;
           default:
         }
       }

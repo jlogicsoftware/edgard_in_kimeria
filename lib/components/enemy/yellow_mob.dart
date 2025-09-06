@@ -12,23 +12,27 @@ class YellowMob extends SpriteAnimationGroupComponent
     with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
   final double offNeg;
   final double offPos;
+
   YellowMob({
-    super.position,
-    super.size,
+    required Vector2 position,
+    Vector2? size,
     this.offNeg = 0,
     this.offPos = 0,
-  });
+  }) : super(
+          position: position,
+          size: size ?? Vector2(48, 32),
+          anchor: Anchor.topLeft,
+        );
 
   static const kStepTime = 0.05;
   static const tileSize = 16;
   static const runSpeed = 80;
   static const _bounceHeight = 260.0;
-  final textureSize = Vector2(32, 34);
 
   Vector2 velocity = Vector2.zero();
   double rangeNeg = 0;
   double rangePos = 0;
-  double moveDirection = 1;
+  double moveDirection = 0;
   double targetDirection = -1;
   bool gotStomped = false;
 
@@ -44,12 +48,13 @@ class YellowMob extends SpriteAnimationGroupComponent
 
     add(
       RectangleHitbox(
-        position: Vector2(4, 6),
-        size: Vector2(24, 26),
+        position: Vector2(10, 6),
+        size: Vector2(14, 26),
       ),
     );
     _loadAllAnimations();
     _calculateRange();
+
     return super.onLoad();
   }
 
@@ -64,9 +69,9 @@ class YellowMob extends SpriteAnimationGroupComponent
   }
 
   void _loadAllAnimations() {
-    _idleAnimation = _spriteAnimation('Idle', 4, Vector2(0, 48 * 5));
-    _runAnimation = _spriteAnimation('Run', 4, Vector2(0, 48 * 0));
-    _hitAnimation = _spriteAnimation('Hit', 15, Vector2(0, 48 * 2))
+    _idleAnimation = _spriteAnimation('Idle', 4, Vector2(0, 32 * 5));
+    _runAnimation = _spriteAnimation('Run', 4, Vector2(0, 32 * 1));
+    _hitAnimation = _spriteAnimation('Hit', 4, Vector2(0, 32 * 4))
       ..loop = false;
 
     animations = {
@@ -80,11 +85,11 @@ class YellowMob extends SpriteAnimationGroupComponent
 
   SpriteAnimation _spriteAnimation(String state, int amount, Vector2 position) {
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('Enemy/Mobs.png'),
+      game.images.fromCache('enemy/yellow_mob.png'),
       SpriteAnimationData.sequenced(
         amount: amount,
         stepTime: kStepTime,
-        textureSize: Vector2.all(48),
+        textureSize: Vector2.array([48, 32]),
         texturePosition: Vector2(position.x, position.y),
       ),
     );
@@ -126,8 +131,8 @@ class YellowMob extends SpriteAnimationGroupComponent
   void _updateState() {
     current = (velocity.x != 0) ? State.run : State.idle;
 
-    if ((moveDirection > 0 && scale.x > 0) ||
-        (moveDirection < 0 && scale.x < 0)) {
+    if ((moveDirection < 0 && scale.x > 0) ||
+        (moveDirection > 0 && scale.x < 0)) {
       flipHorizontallyAroundCenter();
     }
   }
