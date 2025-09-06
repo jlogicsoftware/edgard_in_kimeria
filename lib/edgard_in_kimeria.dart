@@ -16,13 +16,14 @@ class EdgardInKimeria extends FlameGame<World>
         DragCallbacks,
         HasCollisionDetection,
         TapCallbacks {
+  double timeScale = 1.0;
   final player = Player();
   late AudioPool jumpPool;
   late AudioPool bouncePool;
   late AudioPool collectPool;
   late JoystickComponent joystick;
   bool showControls = false;
-  bool playSounds = true;
+  bool playSounds = false;
   double soundVolume = 1.0;
   List<String> levelNames = ['forest', 'forest-1'];
   int currentLevelIndex = 0;
@@ -58,7 +59,10 @@ class EdgardInKimeria extends FlameGame<World>
     if (showControls) {
       updateJoystick();
     }
-    super.update(dt);
+    // Update the camera with unscaled dt for smooth movement
+    camera.update(dt);
+    // Update the rest of the game with scaled dt (for bullet time, etc)
+    super.update(dt * timeScale);
   }
 
   void addJoystick() {
