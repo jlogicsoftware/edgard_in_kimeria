@@ -7,6 +7,7 @@ import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/effects/firefly.dart';
 import 'package:edgard_in_kimeria/components/effects/rain.dart';
+import 'package:edgard_in_kimeria/components/effects/fog_effect.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -43,6 +44,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
       }
     }
 
+    add(FogEffect());
     return super.onLoad();
   }
 

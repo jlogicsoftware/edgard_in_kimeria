@@ -25,7 +25,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
+  shaders:
+    - shaders/fog.frag
   assets:
     - assets/
     - assets/tiles/
