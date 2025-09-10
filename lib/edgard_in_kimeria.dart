@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/HUD/jump_button.dart';
+import 'package:edgard_in_kimeria/levels/level.dart';
+import 'package:edgard_in_kimeria/components/effects/bomb_explosion_effect.dart';
+
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-
-import 'package:edgard_in_kimeria/levels/level.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:flutter/painting.dart';
 
 class EdgardInKimeria extends FlameGame<World>
     with
@@ -50,6 +51,12 @@ class EdgardInKimeria extends FlameGame<World>
       addJoystick();
       add(JumpButton());
     }
+
+    // Add explosion effect at game start for debugging
+    // add(BombExplosionEffect(
+    //   position: Vector2(200, 200),
+    //   size: 128,
+    // ));
 
     return super.onLoad();
   }

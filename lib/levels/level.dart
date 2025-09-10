@@ -2,6 +2,7 @@ import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
+import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
@@ -102,6 +103,12 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             add(yellowMob);
             break;
+          case 'Bomb':
+            final bomb = Bomb(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(bomb);
           default:
         }
       }
