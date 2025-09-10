@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
+import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
@@ -193,6 +194,10 @@ class Player extends SpriteAnimationGroupComponent
       if (other is Bat) _respawn();
       if (other is YellowMob) other.collidedWithPlayer();
       if (other is Checkpoint) _reachedCheckpoint();
+      if (other is Bomb) {
+        other.collideWithPlayer();
+        _respawn();
+      }
     }
     super.onCollisionStart(intersectionPoints, other);
   }
@@ -213,7 +218,8 @@ class Player extends SpriteAnimationGroupComponent
         image: 'hero/Player.png', amount: 2, position: Vector2(0, 48 * 4))
       ..loop = false;
     appearingAnimation = _spriteAnimation(
-        image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
+        image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 3))
+      ..loop = false;
     disappearingAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 6));
     climbingAnimation = _spriteAnimation(
@@ -433,20 +439,27 @@ class Player extends SpriteAnimationGroupComponent
 
   void _respawn() async {
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
-    const canMoveDuration = Duration(milliseconds: 400);
+
     isGotHit = true;
     current = PlayerState.hit;
-
     await animationTicker?.completed;
     animationTicker?.reset();
 
     scale.x = 1;
     velocity = Vector2.zero();
-    current = PlayerState.appearing;
     position = startingPosition;
-    _updatePlayerState();
-    Future.delayed(canMoveDuration, () => isGotHit = false);
-    game.camera.moveTo(Vector2.all(0), speed: 500);
+
+    current = PlayerState.appearing;
+    await animationTicker?.completed;
+    animationTicker?.reset();
+    isGotHit = false;
+    current = PlayerState.idle;
+
+    // Reset camera position after respawn
+    game.camera.moveTo(
+      startingPosition - Vector2.array([200, 200]),
+      speed: 500,
+    );
   }
 
   void _reachedCheckpoint() async {
