@@ -44,6 +44,7 @@ class YellowMob extends SpriteAnimationGroupComponent
   @override
   FutureOr<void> onLoad() {
     debugMode = true;
+    priority = 1;
     player = game.player;
 
     add(
