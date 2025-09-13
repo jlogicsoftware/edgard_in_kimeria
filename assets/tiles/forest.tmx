@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="55">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="56">
  <tileset firstgid="1" source="Forest.tsx"/>
  <layer id="1" name="Background" width="80" height="23">
   <data encoding="csv">
@@ -76,6 +76,5 @@
   <object id="35" type="QuickSand" x="560" y="320" width="48" height="16"/>
   <object id="44" name="Wall" type="Wall" x="912" y="208" width="16" height="112"/>
   <object id="45" name="Wall" type="Wall" x="992" y="224" width="16" height="96"/>
-  <object id="53" x="112" y="592"/>
  </objectgroup>
 </map>
