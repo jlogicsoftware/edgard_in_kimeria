@@ -40,11 +40,6 @@ class Bomb extends SpriteAnimationComponent
     return super.onLoad();
   }
 
-  @override
-  void onRemove() {
-    super.onRemove();
-  }
-
   void collideWithPlayer() async {
     if (!isExploded) {
       isExploded = true;

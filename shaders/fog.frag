@@ -1,3 +1,4 @@
+// Original shader https://github.com/flame-engine/flame/blob/main/examples/games/crystal_ball/shaders/fog.frag
 #version 460 core
 
 precision mediump float;
