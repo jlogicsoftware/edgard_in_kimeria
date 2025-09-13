@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:edgard_in_kimeria/components/effects/shockwave_effect.dart';
+import 'package:edgard_in_kimeria/components/effects/ripple_effect.dart';
+import 'package:flame_tiled/flame_tiled.dart';
 
 class Collectable extends SpriteAnimationComponent
     with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
@@ -51,6 +54,29 @@ class Collectable extends SpriteAnimationComponent
       if (game.playSounds) {
         game.collectPool.start(volume: game.soundVolume);
       }
+      // Show a quick shockwave when collecting coins
+      if (collectableName == 'Coin') {
+        parent?.add(RippleEffect(
+          tiled: (parent as World).children.whereType<TiledComponent>().first,
+          centerWorld: absoluteCenter,
+          duration: 0.75,
+          maxRadius: 300,
+          strength: 12.0,
+          frequency: 60.0,
+          decay: 20.0,
+        ));
+      }
+
+      if (collectableName == 'Heart') {
+        parent?.add(ShockwaveEffect(
+          position: absoluteCenter,
+          // duration: 0.5,
+          // maxRadius: 64,
+          // ringWidth: 8,
+          // shaderAsset: 'shaders/shockwave.frag',
+        ));
+      }
+
       removeFromParent();
     }
   }

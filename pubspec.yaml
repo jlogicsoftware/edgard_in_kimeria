@@ -28,6 +28,8 @@ flutter:
   shaders:
     - shaders/bomb_explosion.frag
     - shaders/fog.frag
+    - shaders/ripple.frag
+    - shaders/shockwave.frag
   assets:
     - assets/
     - assets/tiles/

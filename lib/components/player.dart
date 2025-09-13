@@ -95,6 +95,7 @@ class Player extends SpriteAnimationGroupComponent
   FutureOr<void> onLoad() {
     _loadAllAnimations();
     debugMode = true;
+    priority = 1;
 
     startingPosition = Vector2(position.x, position.y);
 
@@ -148,7 +149,7 @@ class Player extends SpriteAnimationGroupComponent
         }
       }
     }
-    game.timeScale = nearBat ? 0.25 : 1.0;
+    game.timeScale = nearBat ? 0.5 : 1.0;
 
     // Use scaled dt for gameplay logic, but unscaled dt for smooth visual updates
     final scaledDt = dt * game.timeScale;
