@@ -1,3 +1,4 @@
+import 'package:edgard_in_kimeria/components/effects/fog_effect.dart';
 import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
@@ -8,7 +9,7 @@ import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/effects/firefly.dart';
 import 'package:edgard_in_kimeria/components/effects/rain.dart';
-import 'package:edgard_in_kimeria/components/effects/fog_effect.dart';
+import 'package:edgard_in_kimeria/components/effects/torch.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -109,6 +110,16 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
               size: Vector2(spawnPoint.width, spawnPoint.height),
             );
             add(bomb);
+            break;
+          case 'Torch':
+            var intensity = spawnPoint.properties.getValue('Intensity');
+            final torch = Torch(
+              position: Vector2(spawnPoint.x + spawnPoint.width / 2,
+                  spawnPoint.y + spawnPoint.height / 2),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              intensity: intensity,
+            );
+            add(torch);
           default:
         }
       }
