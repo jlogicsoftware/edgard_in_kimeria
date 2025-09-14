@@ -20,8 +20,8 @@
         },
         "forest-1.tmx": {
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 1.4534,
             "selectedLayer": 1,
@@ -32,14 +32,14 @@
         },
         "forest.tmx": {
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 0.8474,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 466.72173707812135,
-                "y": 405.35756431437335
+                "x": 342.8133113051688,
+                "y": 343.9933915506254
             }
         }
     },
@@ -55,7 +55,7 @@
         "forest-1.tmx"
     ],
     "project": "Edgard In Kimeria.tiled-project",
-    "property.type": "float",
+    "property.type": "int",
     "recentFiles": [
         "Forest.tsx",
         "forest-1.tmx",
