@@ -28,10 +28,9 @@ class Torch extends PositionComponent {
   Torch({
     Vector2? position,
     Vector2? size,
-    int intensity = 80,
+    this.intensity = 80,
     int? midSparkleBurst,
-  })  : intensity = intensity,
-        midSparkleBurst = midSparkleBurst ?? intensity {
+  }) : midSparkleBurst = midSparkleBurst ?? intensity {
     if (position != null) this.position = position;
     if (size != null) this.size = size;
     anchor = Anchor.center;

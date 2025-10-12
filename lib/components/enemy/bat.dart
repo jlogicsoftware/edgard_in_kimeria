@@ -1,31 +1,29 @@
 import 'dart:async';
 
-import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
+import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
-class Bat extends SpriteAnimationComponent
-    with HasGameReference<EdgardInKimeria> {
+class Bat extends Enemy {
   final bool isVertical;
-  final double offNeg;
-  final double offPos;
+
   Bat({
     this.isVertical = false,
-    this.offNeg = 0,
-    this.offPos = 0,
-    super.position,
+    super.offNeg = 0,
+    super.offPos = 0,
+    super.spriteName = 'Bat',
+    required super.position,
     super.size,
-  }) : super(anchor: Anchor.topLeft);
+  }) : super();
 
   static const double batSpeed = 0.03;
   static const moveSpeed = 50;
   static const tileSize = 16;
-  double moveDirection = 1;
-  double rangeNeg = 0;
-  double rangePos = 0;
 
   @override
   FutureOr<void> onLoad() {
+    moveDirection = 1;
+
     priority = 1;
     add(CircleHitbox());
     debugMode = true;
@@ -38,13 +36,20 @@ class Bat extends SpriteAnimationComponent
       rangePos = position.x + offPos * tileSize;
     }
 
-    animation = SpriteAnimation.fromFrameData(
-        game.images.fromCache('enemy/Bat.png'),
-        SpriteAnimationData.sequenced(
-          amount: 5,
-          stepTime: batSpeed,
-          textureSize: Vector2.all(16),
-        ));
+    idleAnimation =
+        spriteAnimation('Idle', 5, batSpeed, Vector2.all(16), Vector2.zero());
+    runAnimation = spriteAnimation(
+        'Run', 5, batSpeed, Vector2.all(16), Vector2(0, 32 * 1));
+    hitAnimation =
+        spriteAnimation('Hit', 4, batSpeed, Vector2.all(16), Vector2(0, 32 * 2))
+          ..loop = false;
+    animations = {
+      State.idle: idleAnimation,
+      State.run: runAnimation,
+      State.hit: hitAnimation,
+    };
+    current = State.idle;
+
     return super.onLoad();
   }
 

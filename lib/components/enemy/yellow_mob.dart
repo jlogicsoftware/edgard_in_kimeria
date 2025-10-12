@@ -1,27 +1,26 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:edgard_in_kimeria/components/player.dart';
-import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
+import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
+// import 'package:edgard_in_kimeria/components/player.dart';
+// import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 enum State { idle, run, hit }
 
-class YellowMob extends SpriteAnimationGroupComponent
-    with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
-  final double offNeg;
-  final double offPos;
+class YellowMob extends Enemy {
+  // final double offNeg;
+  // final double offPos;
 
   YellowMob({
-    required Vector2 position,
+    required super.position,
     Vector2? size,
-    this.offNeg = 0,
-    this.offPos = 0,
+    super.offNeg = 0,
+    super.offPos = 0,
   }) : super(
-          position: position,
           size: size ?? Vector2(48, 32),
-          anchor: Anchor.topLeft,
+          spriteName: 'yellow_mob',
         );
 
   static const kStepTime = 0.05;
@@ -29,14 +28,13 @@ class YellowMob extends SpriteAnimationGroupComponent
   static const runSpeed = 80;
   static const _bounceHeight = 260.0;
 
-  Vector2 velocity = Vector2.zero();
-  double rangeNeg = 0;
-  double rangePos = 0;
-  double moveDirection = 0;
+  // Vector2 velocity = Vector2.zero();
+  // double rangeNeg = 0;
+  // double rangePos = 0;
   double targetDirection = -1;
   bool gotStomped = false;
 
-  late final Player player;
+  // late final Player player;
   late final SpriteAnimation _idleAnimation;
   late final SpriteAnimation _runAnimation;
   late final SpriteAnimation _hitAnimation;
@@ -46,6 +44,7 @@ class YellowMob extends SpriteAnimationGroupComponent
     debugMode = true;
     priority = 1;
     player = game.player;
+    moveDirection = 0;
 
     add(
       RectangleHitbox(
@@ -70,9 +69,12 @@ class YellowMob extends SpriteAnimationGroupComponent
   }
 
   void _loadAllAnimations() {
-    _idleAnimation = _spriteAnimation('Idle', 4, Vector2(0, 32 * 5));
-    _runAnimation = _spriteAnimation('Run', 4, Vector2(0, 32 * 1));
-    _hitAnimation = _spriteAnimation('Hit', 4, Vector2(0, 32 * 4))
+    _idleAnimation = spriteAnimation(
+        'Idle', 4, kStepTime, Vector2.array([48, 32]), Vector2(0, 32 * 5));
+    _runAnimation = spriteAnimation(
+        'Run', 4, kStepTime, Vector2.array([48, 32]), Vector2(0, 32 * 1));
+    _hitAnimation = spriteAnimation(
+        'Hit', 4, kStepTime, Vector2.array([48, 32]), Vector2(0, 32 * 4))
       ..loop = false;
 
     animations = {
@@ -84,17 +86,17 @@ class YellowMob extends SpriteAnimationGroupComponent
     current = State.idle;
   }
 
-  SpriteAnimation _spriteAnimation(String state, int amount, Vector2 position) {
-    return SpriteAnimation.fromFrameData(
-      game.images.fromCache('enemy/yellow_mob.png'),
-      SpriteAnimationData.sequenced(
-        amount: amount,
-        stepTime: kStepTime,
-        textureSize: Vector2.array([48, 32]),
-        texturePosition: Vector2(position.x, position.y),
-      ),
-    );
-  }
+  // SpriteAnimation _spriteAnimation(String state, int amount, Vector2 position) {
+  //   return SpriteAnimation.fromFrameData(
+  //     game.images.fromCache('enemy/yellow_mob.png'),
+  //     SpriteAnimationData.sequenced(
+  //       amount: amount,
+  //       stepTime: kStepTime,
+  //       textureSize: Vector2.array([48, 32]),
+  //       texturePosition: Vector2(position.x, position.y),
+  //     ),
+  //   );
+  // }
 
   void _calculateRange() {
     rangeNeg = position.x - offNeg * tileSize;
@@ -108,7 +110,7 @@ class YellowMob extends SpriteAnimationGroupComponent
     double playerOffset = (player.scale.x > 0) ? 0 : -player.width;
     double yellowMobOffset = (scale.x > 0) ? 0 : -width;
 
-    if (playerInRange()) {
+    if (_playerInRange()) {
       // player in range
       targetDirection =
           (player.x + playerOffset < position.x + yellowMobOffset) ? -1 : 1;
@@ -120,7 +122,7 @@ class YellowMob extends SpriteAnimationGroupComponent
     position.x += velocity.x * dt;
   }
 
-  bool playerInRange() {
+  bool _playerInRange() {
     double playerOffset = (player.scale.x > 0) ? 0 : -player.width;
 
     return player.x + playerOffset >= rangeNeg &&
@@ -138,14 +140,16 @@ class YellowMob extends SpriteAnimationGroupComponent
     }
   }
 
-  void collidedWithPlayer() async {
-    if (player.velocity.y > 0 && player.y + player.height > position.y) {
+  @override
+  void collidedWithPlayer({bool gotHit = false}) async {
+    if (gotHit ||
+        (player.velocity.y > 0 && player.y + player.height > position.y)) {
       if (game.playSounds) {
         game.bouncePool.start(volume: game.soundVolume);
       }
       gotStomped = true;
       current = State.hit;
-      player.velocity.y = -_bounceHeight;
+      if (!gotHit) player.velocity.y = -_bounceHeight;
       await animationTicker?.completed;
       removeFromParent();
     } else {
