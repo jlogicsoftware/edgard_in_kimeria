@@ -7,7 +7,7 @@ import 'package:flame/components.dart';
 
 class Bomb extends SpriteAnimationComponent
     with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
-  Bomb({position, size})
+  Bomb({Vector2? position, Vector2? size})
       : super(
           position: position ?? Vector2.zero(),
           size: size ?? Vector2.all(16.0),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
+import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
 import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
@@ -21,6 +22,7 @@ enum PlayerState {
   jumping,
   falling,
   hit,
+  attacking,
   appearing,
   disappearing,
   climbing
@@ -51,6 +53,7 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation jumpingAnimation;
   late final SpriteAnimation fallingAnimation;
   late final SpriteAnimation hitAnimation;
+  late final SpriteAnimation attackingAnimation;
   late final SpriteAnimation appearingAnimation;
   late final SpriteAnimation disappearingAnimation;
   late final SpriteAnimation climbingAnimation;
@@ -72,6 +75,9 @@ class Player extends SpriteAnimationGroupComponent
   Vector2 velocity = Vector2.zero();
   bool isOnGround = false;
   bool isJumping = false;
+  bool isAttacking = false;
+  bool isAttackHitboxAdded = false;
+  late RectangleHitbox attackHitbox;
   bool isGotHit = false;
   bool isReachedCheckpoint = false;
   List<CollisionBlock> collisionBlocks = [];
@@ -158,6 +164,7 @@ class Player extends SpriteAnimationGroupComponent
 
     while (accumulatedTime >= kFixedDeltaTime) {
       if (!isGotHit && !isReachedCheckpoint) {
+        _checkAttackCollisions();
         _updatePlayerState();
         _updatePlayerMovement(kFixedDeltaTime);
         _checkHorizontalCollisions();
@@ -182,7 +189,14 @@ class Player extends SpriteAnimationGroupComponent
     horizontalMovement += isLeftKeyPressed ? -1 : 0;
     horizontalMovement += isRightKeyPressed ? 1 : 0;
 
-    isJumping = keysPressed.contains(LogicalKeyboardKey.space);
+    isJumping = keysPressed.contains(LogicalKeyboardKey.keyJ);
+
+    if (keysPressed.contains(LogicalKeyboardKey.keyK)) {
+      if (!isAttacking && isOnGround && !isJumping && !isClambering) {
+        isAttacking = true;
+        // _checkAttackCollisions();
+      }
+    }
 
     return false;
   }
@@ -192,8 +206,8 @@ class Player extends SpriteAnimationGroupComponent
       Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!isReachedCheckpoint) {
       if (other is Collectable) other.collideWithPlayer();
-      if (other is Bat) _respawn();
-      if (other is YellowMob) other.collidedWithPlayer();
+      if (other is Bat && !isAttacking) _respawn();
+      if (other is YellowMob && !isAttacking) other.collidedWithPlayer();
       if (other is Checkpoint) _reachedCheckpoint();
       if (other is Bomb) {
         other.collideWithPlayer();
@@ -218,6 +232,9 @@ class Player extends SpriteAnimationGroupComponent
     hitAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 2, position: Vector2(0, 48 * 4))
       ..loop = false;
+    attackingAnimation = _spriteAnimation(
+        image: 'hero/Player.png', amount: 7, position: Vector2(0, 48 * 1))
+      ..loop = false;
     appearingAnimation = _spriteAnimation(
         image: 'hero/Player.png', amount: 4, position: Vector2(0, 48 * 3))
       ..loop = false;
@@ -233,6 +250,7 @@ class Player extends SpriteAnimationGroupComponent
       PlayerState.jumping: jumpingAnimation,
       PlayerState.falling: fallingAnimation,
       PlayerState.hit: hitAnimation,
+      PlayerState.attacking: attackingAnimation,
       PlayerState.appearing: appearingAnimation,
       PlayerState.disappearing: disappearingAnimation,
       PlayerState.climbing: climbingAnimation,
@@ -249,6 +267,7 @@ class Player extends SpriteAnimationGroupComponent
         stepTime: kStepTime,
         textureSize: Vector2.all(48),
         texturePosition: Vector2(position.x, position.y),
+        amountPerRow: amount > 4 ? 4 : amount,
         loop: true,
       ),
     );
@@ -295,6 +314,8 @@ class Player extends SpriteAnimationGroupComponent
     if (velocity.y < 0) playerState = PlayerState.jumping;
 
     if (isClambering) playerState = PlayerState.climbing;
+
+    if (isAttacking) playerState = PlayerState.attacking;
 
     current = playerState;
   }
@@ -481,6 +502,56 @@ class Player extends SpriteAnimationGroupComponent
       isReachedCheckpoint = false;
       game.loadNextLevel();
     });
+  }
+
+  void _checkAttackCollisions() async {
+    if (!isAttacking) return;
+    current = PlayerState.attacking;
+
+    horizontalMovement = 0;
+    velocity.x = 0;
+    isAttacking = true;
+
+    // Define the attack hitbox dimensions and position
+    if (!isAttackHitboxAdded) {
+      attackHitbox = RectangleHitbox(
+        position: Vector2(
+          isPlayerFacingRight
+              ? 16 - hitbox.offsetX + hitbox.width
+              : hitbox.offsetX - 20 + hitbox.width,
+          hitbox.offsetY - 14,
+        ),
+        size: Vector2(37, hitbox.height + 14),
+      );
+      attackHitbox.collisionType = CollisionType.active;
+      attackHitbox.debugMode = true;
+      add(attackHitbox);
+
+      isAttackHitboxAdded = true;
+
+      // clear state
+      await animationTicker?.completed;
+      animationTicker?.reset();
+      isAttacking = false;
+      isAttackHitboxAdded = false;
+
+      attackHitbox.removeFromParent();
+    }
+
+    // Check for collisions with enemies
+    for (final enemy in parent!.children.whereType<Enemy>()) {
+      //.followedBy(parent!.children.whereType<Bat>().cast<YellowMob>())) {
+      if (attackHitbox.toAbsoluteRect().overlaps(
+          enemy.children.whereType<ShapeHitbox>().first.toAbsoluteRect())) {
+        // enemy.collidedWithPlayer();
+        enemy.collidedWithPlayer(gotHit: true);
+        print('Enemy hit!');
+        // isAttacking = false;
+        // isAttackHitboxAdded = false;
+        // attackHitbox.removeFromParent();
+        break;
+      }
+    }
   }
 
   void collidedWithEnemy() {
