@@ -80,6 +80,10 @@ class Player extends SpriteAnimationGroupComponent
   late RectangleHitbox attackHitbox;
   bool isGotHit = false;
   bool isReachedCheckpoint = false;
+
+  // Add movement input tracking
+  bool _isMovementInputActive = false;
+  PlayerDirection _inputDirection = PlayerDirection.none;
   List<CollisionBlock> collisionBlocks = [];
   CustomHitbox hitbox = CustomHitbox(
     offsetX: 18,
@@ -180,21 +184,35 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    horizontalMovement = 0;
+    // Track movement input state
     final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
         keysPressed.contains(LogicalKeyboardKey.arrowLeft);
     final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) ||
         keysPressed.contains(LogicalKeyboardKey.arrowRight);
 
-    horizontalMovement += isLeftKeyPressed ? -1 : 0;
-    horizontalMovement += isRightKeyPressed ? 1 : 0;
+    _isMovementInputActive = isLeftKeyPressed || isRightKeyPressed;
 
-    isJumping = keysPressed.contains(LogicalKeyboardKey.keyJ);
+    // Determine input direction
+    if (isLeftKeyPressed) {
+      _inputDirection = PlayerDirection.left;
+    } else if (isRightKeyPressed) {
+      _inputDirection = PlayerDirection.right;
+    } else {
+      _inputDirection = PlayerDirection.none;
+    }
+
+    // Handle movement only if not attacking
+    if (!isAttacking) {
+      horizontalMovement = 0;
+      horizontalMovement += isLeftKeyPressed ? -1 : 0;
+      horizontalMovement += isRightKeyPressed ? 1 : 0;
+    }
+
+    isJumping = keysPressed.contains(LogicalKeyboardKey.keyJ) && !isAttacking;
 
     if (keysPressed.contains(LogicalKeyboardKey.keyK)) {
       if (!isAttacking && isOnGround && !isJumping && !isClambering) {
-        isAttacking = true;
-        // _checkAttackCollisions();
+        _performAttack();
       }
     }
 
@@ -504,6 +522,33 @@ class Player extends SpriteAnimationGroupComponent
     });
   }
 
+  void _performAttack() {
+    isAttacking = true;
+    // Store current movement to restore later
+    // Movement will be handled by _checkAttackCollisions
+  }
+
+  void _resumeMovementAfterAttack() {
+    // Resume movement based on stored input direction if still active
+    if (_isMovementInputActive && _inputDirection != PlayerDirection.none) {
+      switch (_inputDirection) {
+        case PlayerDirection.left:
+          horizontalMovement = -1;
+          break;
+        case PlayerDirection.right:
+          horizontalMovement = 1;
+          break;
+        case PlayerDirection.none:
+        case PlayerDirection.up:
+        case PlayerDirection.down:
+          horizontalMovement = 0;
+          break;
+      }
+    } else {
+      horizontalMovement = 0;
+    }
+  }
+
   void _checkAttackCollisions() async {
     if (!isAttacking) return;
     current = PlayerState.attacking;
@@ -529,13 +574,17 @@ class Player extends SpriteAnimationGroupComponent
 
       isAttackHitboxAdded = true;
 
-      // clear state
+      // Wait for attack animation to complete
       await animationTicker?.completed;
       animationTicker?.reset();
+
+      // Clear attack state
       isAttacking = false;
       isAttackHitboxAdded = false;
-
       attackHitbox.removeFromParent();
+
+      // Resume movement if input is still active
+      _resumeMovementAfterAttack();
     }
 
     // Check for collisions with enemies
