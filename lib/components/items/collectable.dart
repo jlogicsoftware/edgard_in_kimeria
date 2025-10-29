@@ -56,6 +56,8 @@ class Collectable extends SpriteAnimationComponent
       }
       // Show a quick shockwave when collecting coins
       if (collectableName == 'Coin') {
+        game.coinsCollected += 1;
+
         parent?.add(RippleEffect(
           tiled: (parent as World).children.whereType<TiledComponent>().first,
           centerWorld: absoluteCenter,

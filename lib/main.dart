@@ -1,3 +1,5 @@
+import 'package:edgard_in_kimeria/components/overlay/game_over.dart';
+import 'package:edgard_in_kimeria/components/overlay/main_menu.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
@@ -13,5 +15,13 @@ void main() async {
   final game = EdgardInKimeria();
   game.onLoad();
 
-  runApp(GameWidget(game: kDebugMode ? EdgardInKimeria() : game));
+  // runApp(GameWidget(game: kDebugMode ? EdgardInKimeria() : game));
+  runApp(GameWidget<EdgardInKimeria>.controlled(
+    gameFactory: () => kDebugMode ? EdgardInKimeria() : game,
+    overlayBuilderMap: {
+      'MainMenu': (_, game) => MainMenu(game: game),
+      'GameOver': (_, game) => GameOver(game: game),
+    },
+    initialActiveOverlays: const ['MainMenu'],
+  ));
 }

@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'package:edgard_in_kimeria/components/overlay/hud.dart';
 import 'package:flutter/material.dart';
 
 import 'package:edgard_in_kimeria/components/player.dart';
-import 'package:edgard_in_kimeria/components/HUD/jump_button.dart';
+import 'package:edgard_in_kimeria/components/overlay/jump_button.dart';
 import 'package:edgard_in_kimeria/levels/level.dart';
 
 import 'package:flame/components.dart';
@@ -27,6 +28,9 @@ class EdgardInKimeria extends FlameGame<World>
   double soundVolume = 1.0;
   List<String> levelNames = ['forest', 'forest-1'];
   int currentLevelIndex = 0;
+
+  int coinsCollected = 0;
+  bool isGameStarted = false;
 
   @override
   FutureOr<void> onLoad() async {
@@ -129,7 +133,16 @@ class EdgardInKimeria extends FlameGame<World>
       );
       camera.viewfinder.anchor = Anchor.topLeft;
 
+      camera.viewport.add(Hud());
+
       addAll([world]);
     });
+  }
+
+  void reset() {
+    coinsCollected = 0;
+    currentLevelIndex = 0;
+    removeWhere((component) => component is Level);
+    _loadLevel();
   }
 }

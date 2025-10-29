@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "forest.tmx",
+    "activeFile": "forest-1.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -20,26 +20,26 @@
         },
         "forest-1.tmx": {
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 1.4534,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 320.2834732351726,
-                "y": 184.05119031237095
+                "x": 258.35970827026284,
+                "y": 241.8467042796202
             }
         },
         "forest.tmx": {
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 0.8474,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 342.8133113051688,
-                "y": 343.9933915506254
+                "x": 567.02855794194,
+                "y": 290.8897805050743
             }
         }
     },
@@ -55,11 +55,11 @@
         "forest-1.tmx"
     ],
     "project": "Edgard In Kimeria.tiled-project",
-    "property.type": "int",
+    "property.type": "float",
     "recentFiles": [
         "Forest.tsx",
-        "forest-1.tmx",
         "forest.tmx",
+        "forest-1.tmx",
         "Forest1.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
