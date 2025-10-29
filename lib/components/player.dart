@@ -69,6 +69,9 @@ class Player extends SpriteAnimationGroupComponent
   static const kJumpForce = 260.0;
   static const kTerminalVelocity = 300.0;
 
+  static const kNumberOfTries = 3;
+  int numberOfLives = kNumberOfTries;
+
   double horizontalMovement = 0;
   double moveSpeed = 100;
   Vector2 startingPosition = Vector2.zero();
@@ -184,6 +187,10 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    if (!game.isGameStarted) {
+      return false;
+    }
+
     // Track movement input state
     final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
         keysPressed.contains(LogicalKeyboardKey.arrowLeft);
@@ -500,6 +507,15 @@ class Player extends SpriteAnimationGroupComponent
       startingPosition - Vector2.array([200, 200]),
       speed: 500,
     );
+
+    if (numberOfLives > 0) {
+      numberOfLives -= 1;
+    } else {
+      // Trigger game over
+      numberOfLives = kNumberOfTries;
+      game.isGameStarted = false;
+      game.overlays.add('GameOver');
+    }
   }
 
   void _reachedCheckpoint() async {

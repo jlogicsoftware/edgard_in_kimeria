@@ -1,4 +1,5 @@
 import 'package:edgard_in_kimeria/components/effects/fog_effect.dart';
+import 'package:edgard_in_kimeria/components/enemy/red_mob.dart';
 import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
@@ -103,6 +104,17 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
               offPos: offPos,
             );
             add(yellowMob);
+            break;
+          case 'RedMob':
+            final offNeg = spawnPoint.properties.getValue('offNeg');
+            final offPos = spawnPoint.properties.getValue('offPos');
+            final redMob = RedMob(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              offNeg: offNeg,
+              offPos: offPos,
+            );
+            add(redMob);
             break;
           case 'Bomb':
             final bomb = Bomb(
