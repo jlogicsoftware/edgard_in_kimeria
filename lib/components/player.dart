@@ -223,6 +223,13 @@ class Player extends SpriteAnimationGroupComponent
       }
     }
 
+    // TODO: if Player press L, check intersection with Tiled Class "button";
+    // if yes, find linked object by property Button.for to Object.name,
+    // (now it is Tourch) and set property Object.Intensity to 5 if it's 0,
+    // or to 0 if it's 5.
+    // TODO: Create "toggable" class that will has propery "Object.action",
+    // that action will do something (tourch changes intensity, door open/closes, etc).
+
     return false;
   }
 
@@ -485,6 +492,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _respawn() async {
+    if (isGotHit) return;
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
 
     isGotHit = true;
@@ -515,6 +523,8 @@ class Player extends SpriteAnimationGroupComponent
       numberOfLives = kNumberOfTries;
       game.isGameStarted = false;
       game.overlays.add('GameOver');
+      // remove player from the game world
+      removeFromParent();
     }
   }
 

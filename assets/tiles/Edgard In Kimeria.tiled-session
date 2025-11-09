@@ -23,11 +23,11 @@
                 2,
                 3
             ],
-            "scale": 1.4534,
-            "selectedLayer": 1,
+            "scale": 1.45,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 258.35970827026284,
-                "y": 241.8467042796202
+                "x": 336.896551724138,
+                "y": 335.51724137931035
             }
         },
         "forest.tmx": {
@@ -55,7 +55,7 @@
         "forest-1.tmx"
     ],
     "project": "Edgard In Kimeria.tiled-project",
-    "property.type": "float",
+    "property.type": "string",
     "recentFiles": [
         "Forest.tsx",
         "forest.tmx",

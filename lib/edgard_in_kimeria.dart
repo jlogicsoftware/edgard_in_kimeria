@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:edgard_in_kimeria/components/overlay/hud.dart';
+import 'package:edgard_in_kimeria/components/effects/chroma_glitch_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:edgard_in_kimeria/components/player.dart';
@@ -26,7 +28,7 @@ class EdgardInKimeria extends FlameGame<World>
   bool showControls = false;
   bool playSounds = false;
   double soundVolume = 1.0;
-  List<String> levelNames = ['forest', 'forest-1'];
+  List<String> levelNames = ['forest-1', 'forest'];
   int currentLevelIndex = 0;
 
   int coinsCollected = 0;
@@ -134,6 +136,21 @@ class EdgardInKimeria extends FlameGame<World>
       camera.viewfinder.anchor = Anchor.topLeft;
 
       camera.viewport.add(Hud());
+
+      // Add chromatic aberration manager as a component for forest-1 level
+      if (levelNames[currentLevelIndex] == 'forest-1') {
+        world.add(ChromaGlitchManager(
+          camera: camera,
+          minInterval: 1.0,
+          maxInterval: 3.0,
+          minDuration: 0.2, // Initial minimum duration
+          maxDuration: 0.5, // Initial maximum duration
+          maxPoisonDuration: 2.5, // Maximum duration when fully poisoned
+          initialShiftIntensity: 0.002, // Start with subtle effect
+          maxShiftIntensity: 0.015, // Maximum poison effect
+          poisonProgressionRate: 0.0008, // Poison increases over time
+        ));
+      }
 
       addAll([world]);
     });

@@ -27,6 +27,7 @@ flutter:
   uses-material-design: true
   shaders:
     - shaders/bomb_explosion.frag
+    - shaders/chroma_glitch.frag
     - shaders/fog.frag
     - shaders/ripple.frag
     - shaders/shockwave.frag
