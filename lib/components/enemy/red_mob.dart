@@ -175,6 +175,7 @@ class RedMob extends Enemy {
 
   void _performAttack() {
     if (isAttacking) return;
+    if (player.isGotHit) return;
 
     isAttacking = true;
     current = State.attack;
@@ -183,7 +184,7 @@ class RedMob extends Enemy {
       isAttacking = false;
       current = State.idle;
       // back to initial position after attack
-      position.x = -100;
+      position.x += 300;
     });
   }
 

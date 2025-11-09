@@ -26,7 +26,7 @@ class EdgardInKimeria extends FlameGame<World>
   bool showControls = false;
   bool playSounds = false;
   double soundVolume = 1.0;
-  List<String> levelNames = ['forest', 'forest-1'];
+  List<String> levelNames = ['forest-1', 'forest'];
   int currentLevelIndex = 0;
 
   int coinsCollected = 0;

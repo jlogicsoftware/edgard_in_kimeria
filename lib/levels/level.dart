@@ -38,6 +38,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
       for (int i = 0; i < 24; i++) {
         add(Firefly(area: Vector2(level.size.x, level.size.y)));
       }
+      add(FogEffect());
     }
 
     // Add rain for level 2 (forest-1)
@@ -47,7 +48,6 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
       }
     }
 
-    add(FogEffect());
     return super.onLoad();
   }
 
