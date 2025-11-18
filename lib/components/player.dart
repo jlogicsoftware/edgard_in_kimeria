@@ -9,6 +9,7 @@ import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
+import 'package:edgard_in_kimeria/components/items/trigger.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:edgard_in_kimeria/utils/utils.dart';
 import 'package:flame/collisions.dart';
@@ -83,6 +84,7 @@ class Player extends SpriteAnimationGroupComponent
   late RectangleHitbox attackHitbox;
   bool isGotHit = false;
   bool isReachedCheckpoint = false;
+  String collideWithTriggerId = "";
 
   // Add movement input tracking
   bool _isMovementInputActive = false;
@@ -225,10 +227,25 @@ class Player extends SpriteAnimationGroupComponent
 
     // TODO: if Player press L, check intersection with Tiled Class "button";
     // if yes, find linked object by property Button.for to Object.name,
-    // (now it is Tourch) and set property Object.Intensity to 5 if it's 0,
+    // (now it is Torch) and set property Object.Intensity to 5 if it's 0,
     // or to 0 if it's 5.
     // TODO: Create "toggable" class that will has propery "Object.action",
-    // that action will do something (tourch changes intensity, door open/closes, etc).
+    // that action will do something (torch changes intensity, door open/closes, etc).
+    if (keysPressed.contains(LogicalKeyboardKey.keyL)) {
+      print('Player pressed L key: $collideWithTriggerId');
+      // if Player collide with trigger?
+      if (collideWithTriggerId.isNotEmpty) {
+        print('Activating Trigger with id: $collideWithTriggerId');
+        final triggers = parent?.children.whereType<Trigger>() ?? [];
+        print('Found ${triggers.length} triggers in the level');
+        for (final trigger in triggers) {
+          if (trigger.targetId == collideWithTriggerId) {
+            print('Activating trigger: ${trigger.targetId}');
+            trigger.activate();
+          }
+        }
+      }
+    }
 
     return false;
   }
@@ -244,6 +261,10 @@ class Player extends SpriteAnimationGroupComponent
       if (other is Bomb) {
         other.collideWithPlayer();
         _respawn();
+      }
+      if (other is Trigger) {
+        collideWithTriggerId = other.targetId;
+        print('Player collided with Trigger: $collideWithTriggerId');
       }
     }
     super.onCollisionStart(intersectionPoints, other);

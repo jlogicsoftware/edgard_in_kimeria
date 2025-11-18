@@ -10,7 +10,8 @@ class Torch extends PositionComponent {
   final Random _rand = Random();
   late final CircleComponent _light;
   // Intensity controls glow size/alpha and, by default, the mid-sparkle burst.
-  final int intensity;
+  int intensity;
+  String targetId;
   // Number of mid-life sparkles emitted per burst. Default is `intensity`.
   final int midSparkleBurst;
   // Weighted live sparkle/ember sum (weights depend on particle distance).
@@ -25,11 +26,15 @@ class Torch extends PositionComponent {
   double _targetRadius = 0.0;
   double _targetAlpha = 0.0;
 
+  // Flag to control whether new particles are scheduled
+  bool _schedulersActive = true;
+
   Torch({
     Vector2? position,
     Vector2? size,
     this.intensity = 80,
     int? midSparkleBurst,
+    this.targetId = '',
   }) : midSparkleBurst = midSparkleBurst ?? intensity {
     if (position != null) this.position = position;
     if (size != null) this.size = size;
@@ -43,13 +48,58 @@ class Torch extends PositionComponent {
     // safely above ripple and other effects so the torch is not occluded.
     priority = 2;
 
-    // Start a few continuous spawners for core flame, embers and smoke.
-    _setupLight();
-    _scheduleCore();
-    _scheduleEmber();
-    _scheduleMidSparkle();
-    _scheduleSmoke();
+    // Initialize _light immediately to avoid LateInitializationError
+    _baseRadius = (4.0 + intensity * 0.06).clamp(3.0, 40.0).toDouble();
+    _baseAlpha = ((18 + (intensity * 0.22)).round().clamp(8, 220)).toInt();
+
+    _light = CircleComponent(
+      radius: _baseRadius,
+      paint: Paint()..color = Colors.yellow.withAlpha(_baseAlpha),
+      anchor: Anchor.center,
+    );
+    add(_light);
+
+    if (intensity > 0) {
+      // Start a few continuous spawners for core flame, embers and smoke.
+      _setupLight();
+      _scheduleCore();
+      _scheduleEmber();
+      _scheduleMidSparkle();
+      _scheduleSmoke();
+    }
+
     return super.onLoad();
+  }
+
+  void toggleFire(bool isOn) {
+    if (isOn) {
+      intensity = 200;
+      _light.paint = Paint()
+        ..color = Colors.yellow.withAlpha(_baseAlpha)
+        ..blendMode = BlendMode.plus;
+
+      // Restart schedulers
+      _schedulersActive = true;
+      _setupLight();
+      _scheduleCore();
+      _scheduleEmber();
+      _scheduleMidSparkle();
+      _scheduleSmoke();
+    } else {
+      intensity = 0;
+      _light.paint = Paint()
+        ..color = Colors.transparent
+        ..blendMode = BlendMode.plus;
+
+      // Stop all schedulers
+      _schedulersActive = false;
+
+      // Allow existing particles to burn down naturally
+      Future.delayed(Duration(seconds: 2), () {
+        removeWhere(
+            (child) => child != _light); // Remove all remaining particles
+      });
+    }
   }
 
   // Mid-life sparkle: emit a configurable burst of many small green sparks.
@@ -116,29 +166,14 @@ class Torch extends PositionComponent {
   }
 
   void _scheduleMidSparkle() {
+    if (!_schedulersActive) return; // Prevent scheduling if stopped
     final delay = 80 + _rand.nextInt(180); // ~0.08-0.26s between bursts
     Future.delayed(Duration(milliseconds: delay), () {
-      if (isMounted) _spawnMidSparkle();
+      if (isMounted && _schedulersActive) _spawnMidSparkle();
     });
   }
 
   void _setupLight() {
-    // Small radial light that flickers slightly. Using a CircleComponent with
-    // additive-like blending gives a subtle glow. We'll vary size and alpha.
-    // Map intensity to a base radius and alpha (kept in sensible ranges).
-    _baseRadius = (4.0 + intensity * 0.06).clamp(3.0, 40.0).toDouble();
-    _baseAlpha = ((18 + (intensity * 0.22)).round().clamp(8, 220)).toInt();
-
-    _light = CircleComponent(
-      radius: _baseRadius,
-      paint: Paint()..blendMode = BlendMode.plus,
-      anchor: Anchor.center,
-      position: Vector2.zero(),
-    );
-    add(_light);
-    // Initialize shader-based paint representing quadratic-like falloff
-    _updateLightPaint(_baseRadius, _baseAlpha);
-
     // Flicker loop
     void flicker() {
       if (!isMounted) return;
@@ -240,10 +275,10 @@ class Torch extends PositionComponent {
   }
 
   void _scheduleCore() {
-    // Very short randomized delay to emulate natural flicker
+    if (!_schedulersActive) return; // Prevent scheduling if stopped
     final delay = 40 + _rand.nextInt(120); // ms
     Future.delayed(Duration(milliseconds: delay), () {
-      if (isMounted) _spawnCore();
+      if (isMounted && _schedulersActive) _spawnCore();
     });
   }
 
@@ -318,10 +353,11 @@ class Torch extends PositionComponent {
   }
 
   void _scheduleEmber() {
+    if (!_schedulersActive) return; // Prevent scheduling if stopped
     // spawn occasional embers - random interval
     final delay = 20 + _rand.nextInt(120); // ms - much more frequent
     Future.delayed(Duration(milliseconds: delay), () {
-      if (isMounted) _spawnEmber();
+      if (isMounted && _schedulersActive) _spawnEmber();
     });
   }
 
@@ -373,10 +409,11 @@ class Torch extends PositionComponent {
   }
 
   void _scheduleSmoke() {
+    if (!_schedulersActive) return; // Prevent scheduling if stopped
     // make smoke more frequent to be visible
     final delay = 220 + _rand.nextInt(500);
     Future.delayed(Duration(milliseconds: delay), () {
-      if (isMounted) _spawnSmoke();
+      if (isMounted && _schedulersActive) _spawnSmoke();
     });
   }
 
@@ -411,6 +448,15 @@ class Torch extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
+
+    // If intensity is less than or equal to 0, skip sparkling updates
+    if (intensity <= 0) {
+      _light.paint = Paint()
+        ..color = Colors.transparent
+        ..blendMode = BlendMode.plus;
+      return;
+    }
+
     // Smooth current values toward targets (lerp). Smoothing factor tuned for gentle pulses.
     const smoothing = 8.0; // higher = faster
     final t = (1.0 - pow(0.5, dt * smoothing)).toDouble();

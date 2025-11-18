@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:edgard_in_kimeria/components/overlay/hud.dart';
-import 'package:edgard_in_kimeria/components/effects/chroma_glitch_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:edgard_in_kimeria/components/player.dart';
@@ -137,7 +136,8 @@ class EdgardInKimeria extends FlameGame<World>
 
       camera.viewport.add(Hud());
 
-      // Add chromatic aberration manager as a component for forest-1 level
+      // TODO: Example of adding chromatic aberration manager as a component for forest-1 level that can be used to simulate poison effect
+      /*
       if (levelNames[currentLevelIndex] == 'forest-1') {
         world.add(ChromaGlitchManager(
           camera: camera,
@@ -151,6 +151,7 @@ class EdgardInKimeria extends FlameGame<World>
           poisonProgressionRate: 0.0008, // Poison increases over time
         ));
       }
+      */
 
       addAll([world]);
     });

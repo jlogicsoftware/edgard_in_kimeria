@@ -20,26 +20,26 @@
         },
         "forest-1.tmx": {
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 1.45,
-            "selectedLayer": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 336.896551724138,
-                "y": 335.51724137931035
+                "x": 376.2068965517241,
+                "y": 296.2068965517241
             }
         },
         "forest.tmx": {
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 0.8474,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 567.02855794194,
-                "y": 290.8897805050743
+                "x": 268.4682558413972,
+                "y": 308.59098418692474
             }
         }
     },
