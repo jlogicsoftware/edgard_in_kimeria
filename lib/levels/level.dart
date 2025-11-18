@@ -4,9 +4,11 @@ import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
+import 'package:edgard_in_kimeria/components/items/actionable.dart';
 import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
+import 'package:edgard_in_kimeria/components/items/trigger.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/effects/firefly.dart';
 import 'package:edgard_in_kimeria/components/effects/rain.dart';
@@ -124,7 +126,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             add(bomb);
             break;
           case 'Torch':
-            var intensity = spawnPoint.properties.getValue('Intensity');
+            final intensity = spawnPoint.properties.getValue('Intensity');
             final torch = Torch(
               position: Vector2(spawnPoint.x + spawnPoint.width / 2,
                   spawnPoint.y + spawnPoint.height / 2),
@@ -132,6 +134,56 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
               intensity: intensity,
             );
             add(torch);
+            break;
+          case 'Trigger':
+            final targetId = spawnPoint.name;
+            final trigger = Trigger(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              targetId: targetId,
+            );
+            add(trigger);
+            break;
+          case 'Actionable':
+            print('Spawning Actionable with targetId: ${spawnPoint.name}');
+            final type = spawnPoint.properties.getValue('type');
+            final actionable = Actionable(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              targetId: spawnPoint.name,
+              type: type,
+            );
+            add(actionable);
+
+            // TODO: make this more general
+            /* START */
+            final actionableType = spawnPoint.properties.getValue('type');
+            switch (actionableType) {
+              case 'Torch':
+                final intensity =
+                    spawnPoint.properties.getValue('Intensity') ?? 0;
+                print(
+                    'Adding Torch actionable with intensity: $intensity at position: ${spawnPoint.x}, ${spawnPoint.y}');
+                final torch = Torch(
+                  position: Vector2(spawnPoint.x + spawnPoint.width / 2,
+                      spawnPoint.y + spawnPoint.height / 2),
+                  size: Vector2(spawnPoint.width, spawnPoint.height),
+                  intensity: intensity,
+                  targetId: spawnPoint.name,
+                );
+                add(torch);
+                torch.toggleFire(false);
+                break;
+              default:
+            }
+            /* END */
+
+            final actionableCollision = CollisionBlock(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            collisionBlocks.add(actionableCollision);
+            break;
           default:
         }
       }
