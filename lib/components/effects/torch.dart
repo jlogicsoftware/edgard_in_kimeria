@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:edgard_in_kimeria/components/items/actionable.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +7,11 @@ import 'package:flutter/material.dart';
 /// Torch particle effect placed at a position. Creates a small continuous
 /// flame flicker and occasional embers/smoke using short-lived particles
 /// that are respawned to simulate a continuous effect.
-class Torch extends PositionComponent {
+class Torch extends PositionComponent with Actionable {
   final Random _rand = Random();
   late final CircleComponent _light;
   // Intensity controls glow size/alpha and, by default, the mid-sparkle burst.
   int intensity;
-  String targetId;
   // Number of mid-life sparkles emitted per burst. Default is `intensity`.
   final int midSparkleBurst;
   // Weighted live sparkle/ember sum (weights depend on particle distance).
@@ -34,11 +34,17 @@ class Torch extends PositionComponent {
     Vector2? size,
     this.intensity = 80,
     int? midSparkleBurst,
-    this.targetId = '',
+    String targetId = '',
   }) : midSparkleBurst = midSparkleBurst ?? intensity {
     if (position != null) this.position = position;
     if (size != null) this.size = size;
+    this.targetId = targetId;
     anchor = Anchor.center;
+  }
+
+  @override
+  void performAction() {
+    toggleFire(intensity == 0);
   }
 
   @override

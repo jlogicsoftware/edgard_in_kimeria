@@ -4,7 +4,7 @@ import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/environment/background_tile.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
-import 'package:edgard_in_kimeria/components/items/actionable.dart';
+import 'package:edgard_in_kimeria/components/items/wall.dart';
 import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
@@ -145,48 +145,41 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             add(trigger);
             break;
           case 'Actionable':
-            print('Spawning Actionable with targetId: ${spawnPoint.name}');
-            final type = spawnPoint.properties.getValue('type');
-            final actionable = Actionable(
-              position: Vector2(spawnPoint.x, spawnPoint.y),
-              size: Vector2(spawnPoint.width, spawnPoint.height),
-              targetId: spawnPoint.name,
-              type: type,
-            );
-            add(actionable);
-
-            // TODO: make this more general
-            /* START */
-            final actionableType = spawnPoint.properties.getValue('type');
-            switch (actionableType) {
-              case 'Torch':
-                final intensity =
-                    spawnPoint.properties.getValue('Intensity') ?? 0;
-                print(
-                    'Adding Torch actionable with intensity: $intensity at position: ${spawnPoint.x}, ${spawnPoint.y}');
-                final torch = Torch(
-                  position: Vector2(spawnPoint.x + spawnPoint.width / 2,
-                      spawnPoint.y + spawnPoint.height / 2),
-                  size: Vector2(spawnPoint.width, spawnPoint.height),
-                  intensity: intensity,
-                  targetId: spawnPoint.name,
-                );
-                add(torch);
-                torch.toggleFire(false);
-                break;
-              default:
-            }
-            /* END */
-
-            final actionableCollision = CollisionBlock(
-              position: Vector2(spawnPoint.x, spawnPoint.y),
-              size: Vector2(spawnPoint.width, spawnPoint.height),
-            );
-            collisionBlocks.add(actionableCollision);
+            _spawnActionable(spawnPoint);
             break;
           default:
         }
       }
+    }
+  }
+
+  void _spawnActionable(TiledObject spawnPoint) {
+    final type = spawnPoint.properties.getValue('type');
+    final targetId = spawnPoint.name;
+    print('Spawning Actionable of type: $type with targetId: $targetId');
+
+    if (type == 'Torch') {
+      final intensity = spawnPoint.properties.getValue('Intensity') ?? 0;
+      final torch = Torch(
+        position: Vector2(spawnPoint.x + spawnPoint.width / 2,
+            spawnPoint.y + spawnPoint.height / 2),
+        size: Vector2(spawnPoint.width, spawnPoint.height),
+        intensity: intensity,
+        targetId: targetId,
+      );
+      add(torch);
+      // Initialize state if needed, e.g. based on intensity
+      if (intensity == 0) {
+        torch.toggleFire(false);
+      }
+    } else if (type == 'Wall') {
+      final wall = Wall(
+        position: Vector2(spawnPoint.x, spawnPoint.y),
+        size: Vector2(spawnPoint.width, spawnPoint.height),
+        targetId: targetId,
+      );
+      add(wall);
+      collisionBlocks.add(wall);
     }
   }
 

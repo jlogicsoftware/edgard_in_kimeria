@@ -425,6 +425,7 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkHorizontalCollisions() {
     for (final block in collisionBlocks) {
+      if (!block.isActive) continue;
       if (block.isQuickSand) {
         if (checkCollision(this, block)) {
           isInQuickSand = true;
@@ -477,6 +478,7 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkVerticalCollisions() {
     for (final block in collisionBlocks) {
+      if (!block.isActive) continue;
       if (block.isPlatform) {
         if (checkCollision(this, block)) {
           if (velocity.y > 0) {
