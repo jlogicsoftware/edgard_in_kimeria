@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
-// import 'package:edgard_in_kimeria/components/player.dart';
-// import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
@@ -54,14 +52,12 @@ class RedMob extends Enemy {
   }
 
   @override
-  void update(double dt) {
+  void updateEnemy(double dt) {
     if (!gotStomped) {
       _updateState();
       _movement(dt);
       _checkAttackCollision();
     }
-
-    super.update(dt);
   }
 
   void _loadAllAnimations() {

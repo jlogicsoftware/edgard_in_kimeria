@@ -225,12 +225,9 @@ class Player extends SpriteAnimationGroupComponent
       }
     }
 
-    // TODO: if Player press L, check intersection with Tiled Class "button";
-    // if yes, find linked object by property Button.for to Object.name,
-    // (now it is Torch) and set property Object.Intensity to 5 if it's 0,
-    // or to 0 if it's 5.
-    // TODO: Create "toggable" class that will has propery "Object.action",
-    // that action will do something (torch changes intensity, door open/closes, etc).
+    // If Player press L, check intersection with a "trigger", that interacts
+    // with linked "actionable" object (Trigger.Name > Actionable.Name),
+    // action will do something (torch changes intensity, door open/closes, etc).
     if (keysPressed.contains(LogicalKeyboardKey.keyL)) {
       print('Player pressed L key: $collideWithTriggerId');
       // if Player collide with trigger?

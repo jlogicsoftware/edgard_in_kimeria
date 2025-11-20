@@ -1,5 +1,6 @@
 import 'package:edgard_in_kimeria/components/overlay/game_over.dart';
 import 'package:edgard_in_kimeria/components/overlay/main_menu.dart';
+import 'package:edgard_in_kimeria/components/overlay/pause_menu.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
@@ -20,6 +21,7 @@ void main() async {
     gameFactory: () => kDebugMode ? EdgardInKimeria() : game,
     overlayBuilderMap: {
       'MainMenu': (_, game) => MainMenu(game: game),
+      'PauseMenu': (_, game) => PauseMenu(game: game),
       'GameOver': (_, game) => GameOver(game: game),
     },
     initialActiveOverlays: const ['MainMenu'],
