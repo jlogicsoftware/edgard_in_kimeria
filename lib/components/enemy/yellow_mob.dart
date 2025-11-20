@@ -59,13 +59,11 @@ class YellowMob extends Enemy {
   }
 
   @override
-  void update(double dt) {
+  void updateEnemy(double dt) {
     if (!gotStomped) {
       _updateState();
       _movement(dt);
     }
-
-    super.update(dt);
   }
 
   void _loadAllAnimations() {

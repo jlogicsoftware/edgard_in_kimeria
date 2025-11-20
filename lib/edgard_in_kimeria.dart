@@ -163,4 +163,13 @@ class EdgardInKimeria extends FlameGame<World>
     removeWhere((component) => component is Level);
     _loadLevel();
   }
+
+  void pause() {
+    isGameStarted = !isGameStarted;
+    if (isGameStarted) {
+      overlays.remove('PauseMenu');
+    } else {
+      overlays.add('PauseMenu');
+    }
+  }
 }

@@ -8,9 +8,6 @@ class GameOver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const blackTextColor = Color.fromRGBO(0, 0, 0, 1.0);
-    const whiteTextColor = Color.fromRGBO(255, 255, 255, 1.0);
-
     return Material(
       color: Colors.transparent,
       child: Center(
@@ -19,7 +16,7 @@ class GameOver extends StatelessWidget {
           height: 300,
           width: 400,
           decoration: BoxDecoration(
-            color: blackTextColor,
+            color: Colors.black,
             borderRadius: BorderRadius.all(
               Radius.circular(20),
             ),
@@ -30,7 +27,7 @@ class GameOver extends StatelessWidget {
               const Text(
                 'Game Over',
                 style: TextStyle(
-                  color: whiteTextColor,
+                  color: Colors.white,
                   fontSize: 24,
                 ),
               ),
@@ -45,13 +42,13 @@ class GameOver extends StatelessWidget {
                     game.overlays.remove('GameOver');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: whiteTextColor,
+                    backgroundColor: Colors.white,
                   ),
                   child: const Text(
                     'Play Again',
                     style: TextStyle(
                       fontSize: 28.0,
-                      color: blackTextColor,
+                      color: Colors.black,
                     ),
                   ),
                 ),
