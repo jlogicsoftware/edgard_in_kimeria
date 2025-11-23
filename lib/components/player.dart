@@ -193,6 +193,11 @@ class Player extends SpriteAnimationGroupComponent
       return false;
     }
 
+    // Pause the game
+    if (keysPressed.contains(LogicalKeyboardKey.escape)) {
+      game.pause();
+    }
+
     // Track movement input state
     final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
         keysPressed.contains(LogicalKeyboardKey.arrowLeft);
