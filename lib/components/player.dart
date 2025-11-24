@@ -164,7 +164,14 @@ class Player extends SpriteAnimationGroupComponent
         }
       }
     }
-    game.timeScale = nearBat ? 0.5 : 1.0;
+
+    if (nearBat && !game.isSlowTime()) {
+      game.setSlowTime();
+      print('slow time');
+    } else if (!nearBat && game.isSlowTime()) {
+      game.setNormalTime();
+      print('normal time');
+    }
 
     // Use scaled dt for gameplay logic, but unscaled dt for smooth visual updates
     final scaledDt = dt * game.timeScale;

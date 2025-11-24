@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/overlay/jump_button.dart';
 import 'package:edgard_in_kimeria/levels/level.dart';
+import 'package:edgard_in_kimeria/components/effects/ripple_decorator.dart';
+import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -17,8 +19,22 @@ class EdgardInKimeria extends FlameGame<World>
         HasKeyboardHandlerComponents,
         DragCallbacks,
         HasCollisionDetection,
+        HasDecorator,
         TapCallbacks {
-  double timeScale = 1.0;
+  static const double normalTimeScale = 1.0;
+  double timeScale = normalTimeScale;
+  void setSlowTime() {
+    timeScale = 0.5;
+  }
+
+  bool isSlowTime() {
+    return timeScale < normalTimeScale;
+  }
+
+  void setNormalTime() {
+    timeScale = normalTimeScale;
+  }
+
   final player = Player();
   late AudioPool jumpPool;
   late AudioPool bouncePool;
@@ -27,11 +43,15 @@ class EdgardInKimeria extends FlameGame<World>
   bool showControls = false;
   bool playSounds = false;
   double soundVolume = 1.0;
-  List<String> levelNames = ['forest-1', 'forest'];
+  List<String> levelNames = ['forest', 'forest-1'];
   int currentLevelIndex = 0;
+  
+  final Vector2 logicalResolution = Vector2(640, 360);
 
   int coinsCollected = 0;
   bool isGameStarted = false;
+
+  RippleDecorator? _rippleDecorator;
 
   @override
   FutureOr<void> onLoad() async {
@@ -121,7 +141,7 @@ class EdgardInKimeria extends FlameGame<World>
   }
 
   void _loadLevel() {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () async {
       Level world = Level(
         player: player,
         levelName: levelNames[currentLevelIndex],
@@ -136,26 +156,21 @@ class EdgardInKimeria extends FlameGame<World>
 
       camera.viewport.add(Hud());
 
-      // TODO: Example of adding chromatic aberration manager as a component for forest-1 level that can be used to simulate poison effect
-      /*
-      if (levelNames[currentLevelIndex] == 'forest-1') {
-        world.add(ChromaGlitchManager(
-          camera: camera,
-          minInterval: 1.0,
-          maxInterval: 3.0,
-          minDuration: 0.2, // Initial minimum duration
-          maxDuration: 0.5, // Initial maximum duration
-          maxPoisonDuration: 2.5, // Maximum duration when fully poisoned
-          initialShiftIntensity: 0.002, // Start with subtle effect
-          maxShiftIntensity: 0.015, // Maximum poison effect
-          poisonProgressionRate: 0.0008, // Poison increases over time
-        ));
-      }
-      */
+      // Initialize RippleDecorator
+      _rippleDecorator = RippleDecorator();
+      // Load shader
+      final program = await ui.FragmentProgram.fromAsset('shaders/ripple.frag');
+      _rippleDecorator!.setShader(program.fragmentShader());
+
+      // Set global decorator
+      decorator = _rippleDecorator!;
 
       addAll([world]);
     });
   }
+
+  // Accessor for RippleDecorator
+  RippleDecorator? get rippleDecorator => _rippleDecorator;
 
   void reset() {
     coinsCollected = 0;
