@@ -40,6 +40,7 @@ flutter:
     - assets/images/hero/
     - assets/images/HUD/
     - assets/images/enemy/
+    - assets/images/objects/
     # - assets/images/enemy/boss/
     # - assets/images/player/
     # - assets/images/items/

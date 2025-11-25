@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:edgard_in_kimeria/components/objects/escalator.dart';
 import 'package:edgard_in_kimeria/components/overlay/hud.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +44,7 @@ class EdgardInKimeria extends FlameGame<World>
   bool showControls = false;
   bool playSounds = false;
   double soundVolume = 1.0;
-  List<String> levelNames = ['forest', 'forest-1'];
+  List<String> levelNames = ['forest-1', 'forest'];
   int currentLevelIndex = 0;
   
   final Vector2 logicalResolution = Vector2(640, 360);
@@ -52,6 +53,8 @@ class EdgardInKimeria extends FlameGame<World>
   bool isGameStarted = false;
 
   RippleDecorator? _rippleDecorator;
+
+  List<Escalator> escalators = [];
 
   @override
   FutureOr<void> onLoad() async {

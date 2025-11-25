@@ -9,6 +9,7 @@ import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/items/trigger.dart';
+import 'package:edgard_in_kimeria/components/objects/escalator.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/effects/firefly.dart';
 import 'package:edgard_in_kimeria/components/effects/rain.dart';
@@ -24,6 +25,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
   late final TiledComponent level;
   final Player player;
   List<CollisionBlock> collisionBlocks = [];
+  List<Escalator> escalators = [];
 
   @override
   Future<void> onLoad() async {
@@ -147,6 +149,20 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
           case 'Actionable':
             _spawnActionable(spawnPoint);
             break;
+          case 'Escalator':
+            final isVertical =
+                spawnPoint.properties.getValue('isVertical') ?? false;
+            final offNeg = spawnPoint.properties.getValue('offNeg') ?? 0;
+            final offPos = spawnPoint.properties.getValue('offPos') ?? 0;
+            final escalator = Escalator(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+              isVertical: isVertical,
+              offNeg: offNeg,
+              offPos: offPos,
+            );
+            add(escalator);
+            escalators.add(escalator);
           default:
         }
       }
@@ -226,5 +242,6 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
       }
     }
     player.collisionBlocks = collisionBlocks;
+    player.escalators = escalators;
   }
 }

@@ -1,7 +1,7 @@
-import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
+import 'package:edgard_in_kimeria/components/environment/collidable.dart';
 
-bool checkCollision(Player player, CollisionBlock block) {
+bool checkCollision(Player player, Collidable block) {
   final hitbox = player.hitbox;
   final playerX = player.position.x + hitbox.offsetX;
   final playerY = player.position.y + hitbox.offsetY;
