@@ -10,6 +10,7 @@ import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/items/trigger.dart';
+import 'package:edgard_in_kimeria/components/objects/escalator.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:edgard_in_kimeria/utils/utils.dart';
 import 'package:flame/collisions.dart';
@@ -90,6 +91,7 @@ class Player extends SpriteAnimationGroupComponent
   bool _isMovementInputActive = false;
   PlayerDirection _inputDirection = PlayerDirection.none;
   List<CollisionBlock> collisionBlocks = [];
+  List<Escalator> escalators = [];
   CustomHitbox hitbox = CustomHitbox(
     offsetX: 18,
     offsetY: 26,
@@ -102,6 +104,7 @@ class Player extends SpriteAnimationGroupComponent
   bool isInQuickSand = false;
   bool isClambering = false;
   bool isWallJumping = false;
+  Escalator? currentEscalator;
 
   static const kLeftFollow = 200;
   static const kUpFollow = 200;
@@ -185,7 +188,7 @@ class Player extends SpriteAnimationGroupComponent
         _updatePlayerMovement(kFixedDeltaTime);
         _checkHorizontalCollisions();
         _applyGravity(kFixedDeltaTime);
-        _checkVerticalCollisions();
+        _checkVerticalCollisions(kFixedDeltaTime);
       }
       accumulatedTime -= kFixedDeltaTime;
     }
@@ -358,16 +361,19 @@ class Player extends SpriteAnimationGroupComponent
   void _updatePlayerState() {
     PlayerState playerState = PlayerState.idle;
 
-    if (velocity.x < 0 && scale.x > 0) {
+    // Only flip based on player input, not escalator movement
+    if (horizontalMovement < 0 && scale.x > 0) {
       flipHorizontallyAroundCenter();
       isPlayerFacingRight = false;
-    } else if (velocity.x > 0 && scale.x < 0) {
+    } else if (horizontalMovement > 0 && scale.x < 0) {
       flipHorizontallyAroundCenter();
       isPlayerFacingRight = true;
     }
 
-    // Check if moving, set running
-    if (velocity.x > 0 || velocity.x < 0) playerState = PlayerState.running;
+    // Check if moving based on player input, not velocity (to handle escalators)
+    if (horizontalMovement > 0 || horizontalMovement < 0) {
+      playerState = PlayerState.running;
+    }
 
     // check if Falling set to falling
     if (velocity.y > 0) playerState = PlayerState.falling;
@@ -391,6 +397,12 @@ class Player extends SpriteAnimationGroupComponent
       velocity.x = horizontalMovement * moveSpeed;
       if (isInQuickSand) {
         velocity.x *= 0.1; // Strong slow down movement in quicksand
+      }
+      // Add escalator velocity if player is on an escalator
+      if (currentEscalator != null) {
+        final escalatorVelocity = currentEscalator!.currentMoveDirection *
+            currentEscalator!.moveSpeed;
+        velocity.x += escalatorVelocity.x;
       }
     }
     position.x += velocity.x * dt;
@@ -485,7 +497,10 @@ class Player extends SpriteAnimationGroupComponent
     position.y += velocity.y * dt;
   }
 
-  void _checkVerticalCollisions() {
+  void _checkVerticalCollisions(double dt) {
+    // Reset escalator tracking at the start of collision check
+    currentEscalator = null;
+
     for (final block in collisionBlocks) {
       if (!block.isActive) continue;
       if (block.isPlatform) {
@@ -518,6 +533,21 @@ class Player extends SpriteAnimationGroupComponent
             velocity.y = 0;
             position.y = block.y + block.height - hitbox.offsetY;
           }
+        }
+      }
+    }
+
+    // Check for escalator collisions
+    for (final escalator in escalators) {
+      if (!escalator.isActive) continue;
+      if (checkCollision(this, escalator)) {
+        if (velocity.y > 0) {
+          velocity.y = 0;
+          position.y = escalator.y - hitbox.height - hitbox.offsetY;
+          isOnGround = true;
+          // Track that player is on this escalator
+          currentEscalator = escalator;
+          break;
         }
       }
     }
