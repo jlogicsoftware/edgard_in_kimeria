@@ -25,7 +25,7 @@ class MainMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Ember Quest',
+                'Edgard in Kimeria',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,

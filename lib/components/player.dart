@@ -86,6 +86,7 @@ class Player extends SpriteAnimationGroupComponent
   bool isGotHit = false;
   bool isReachedCheckpoint = false;
   String collideWithTriggerId = "";
+  late Iterable<Trigger> triggers;
 
   // Add movement input tracking
   bool _isMovementInputActive = false;
@@ -126,6 +127,8 @@ class Player extends SpriteAnimationGroupComponent
       startingPosition - Vector2.array([200, 200]),
       speed: 500,
     );
+
+    triggers = parent?.children.whereType<Trigger>() ?? [];
 
     return super.onLoad();
   }
@@ -248,7 +251,6 @@ class Player extends SpriteAnimationGroupComponent
       // if Player collide with trigger?
       if (collideWithTriggerId.isNotEmpty) {
         print('Activating Trigger with id: $collideWithTriggerId');
-        final triggers = parent?.children.whereType<Trigger>() ?? [];
         print('Found ${triggers.length} triggers in the level');
         for (final trigger in triggers) {
           if (trigger.targetId == collideWithTriggerId) {
@@ -280,6 +282,14 @@ class Player extends SpriteAnimationGroupComponent
       }
     }
     super.onCollisionStart(intersectionPoints, other);
+  }
+
+  @override
+  void onCollisionEnd(PositionComponent other) {
+    if (other is Trigger) {
+      collideWithTriggerId = '';
+    }
+    super.onCollisionEnd(other);
   }
 
   void _loadAllAnimations() {
