@@ -1,18 +1,13 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
-// import 'package:edgard_in_kimeria/components/player.dart';
-// import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
-import 'package:flame/collisions.dart';
+import 'package:edgard_in_kimeria/components/mixins/collide_mixin.dart';
+import 'package:edgard_in_kimeria/components/mixins/gravity_mixin.dart';
 import 'package:flame/components.dart';
 
-enum State { idle, run, hit }
-
-class YellowMob extends Enemy {
-  // final double offNeg;
-  // final double offPos;
-
+class YellowMob extends Enemy with GravityMixin, CollideMixin {
   YellowMob({
     required super.position,
     Vector2? size,
@@ -28,13 +23,9 @@ class YellowMob extends Enemy {
   static const runSpeed = 80;
   static const _bounceHeight = 260.0;
 
-  // Vector2 velocity = Vector2.zero();
-  // double rangeNeg = 0;
-  // double rangePos = 0;
   double targetDirection = -1;
   bool gotStomped = false;
 
-  // late final Player player;
   late final SpriteAnimation _idleAnimation;
   late final SpriteAnimation _runAnimation;
   late final SpriteAnimation _hitAnimation;
@@ -46,11 +37,11 @@ class YellowMob extends Enemy {
     player = game.player;
     moveDirection = 0;
 
-    add(
-      RectangleHitbox(
-        position: Vector2(10, 6),
-        size: Vector2(14, 26),
-      ),
+    hitbox = CustomHitbox(
+      offsetX: 10,
+      offsetY: 6,
+      width: 14,
+      height: 26,
     );
     _loadAllAnimations();
     _calculateRange();
@@ -64,6 +55,10 @@ class YellowMob extends Enemy {
       _updateState();
       _movement(dt);
     }
+
+    checkHorizontalCollisions(this);
+    applyGravity(dt);
+    checkVerticalCollisions(this, dt);
   }
 
   void _loadAllAnimations() {
@@ -83,18 +78,6 @@ class YellowMob extends Enemy {
 
     current = State.idle;
   }
-
-  // SpriteAnimation _spriteAnimation(String state, int amount, Vector2 position) {
-  //   return SpriteAnimation.fromFrameData(
-  //     game.images.fromCache('enemy/yellow_mob.png'),
-  //     SpriteAnimationData.sequenced(
-  //       amount: amount,
-  //       stepTime: kStepTime,
-  //       textureSize: Vector2.array([48, 32]),
-  //       texturePosition: Vector2(position.x, position.y),
-  //     ),
-  //   );
-  // }
 
   void _calculateRange() {
     rangeNeg = position.x - offNeg * tileSize;

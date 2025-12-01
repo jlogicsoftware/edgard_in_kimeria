@@ -1,10 +1,10 @@
-import 'package:edgard_in_kimeria/components/player.dart';
+import 'package:edgard_in_kimeria/components/actor.dart';
 import 'package:edgard_in_kimeria/components/environment/collidable.dart';
 
-bool checkCollision(Player player, Collidable block) {
-  final hitbox = player.hitbox;
-  final playerX = player.position.x + hitbox.offsetX;
-  final playerY = player.position.y + hitbox.offsetY;
+bool checkCollision(Actor actor, Collidable block) {
+  final hitbox = actor.hitbox;
+  final playerX = actor.position.x + hitbox.offsetX;
+  final playerY = actor.position.y + hitbox.offsetY;
   final playerWidth = hitbox.width;
   final playerHeight = hitbox.height;
 
@@ -13,7 +13,7 @@ bool checkCollision(Player player, Collidable block) {
   final blockWidth = block.width;
   final blockHeight = block.height;
 
-  var fixedX = player.scale.x < 0
+  var fixedX = actor.scale.x < 0
       ? playerX - (hitbox.offsetX * 2) - playerWidth
       : playerX;
   fixedX = block.isQuickSand ? playerX + (hitbox.offsetX) : fixedX;

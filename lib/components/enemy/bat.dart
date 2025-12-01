@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
-import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 class Bat extends Enemy {
@@ -25,7 +25,6 @@ class Bat extends Enemy {
     moveDirection = 1;
 
     priority = 1;
-    add(CircleHitbox());
     debugMode = true;
 
     if (isVertical) {
@@ -49,6 +48,8 @@ class Bat extends Enemy {
       State.hit: hitAnimation,
     };
     current = State.idle;
+
+    hitbox = CustomHitbox(radius: 8);
 
     return super.onLoad();
   }
