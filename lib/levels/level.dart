@@ -24,8 +24,10 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
   final String levelName;
   late final TiledComponent level;
   final Player player;
+
   List<CollisionBlock> collisionBlocks = [];
   List<Escalator> escalators = [];
+  List<Trigger> triggers = [];
 
   @override
   Future<void> onLoad() async {
@@ -145,6 +147,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
               targetId: targetId,
             );
             add(trigger);
+            triggers.add(trigger);
             break;
           case 'Actionable':
             _spawnActionable(spawnPoint);
@@ -241,7 +244,5 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
         }
       }
     }
-    player.collisionBlocks = collisionBlocks;
-    player.escalators = escalators;
   }
 }

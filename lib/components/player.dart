@@ -1,48 +1,30 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:edgard_in_kimeria/components/actor.dart';
+import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/bat.dart';
 import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
 import 'package:edgard_in_kimeria/components/environment/checkpoint.dart';
 import 'package:edgard_in_kimeria/components/items/bomb.dart';
 import 'package:edgard_in_kimeria/components/items/collectable.dart';
-import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
-import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/yellow_mob.dart';
 import 'package:edgard_in_kimeria/components/items/trigger.dart';
-import 'package:edgard_in_kimeria/components/objects/escalator.dart';
+import 'package:edgard_in_kimeria/components/mixins/collide_mixin.dart';
+import 'package:edgard_in_kimeria/components/mixins/gravity_mixin.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
-import 'package:edgard_in_kimeria/utils/utils.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 
-enum PlayerState {
-  idle,
-  running,
-  jumping,
-  falling,
-  hit,
-  attacking,
-  appearing,
-  disappearing,
-  climbing
-}
-
-enum PlayerDirection {
-  left,
-  right,
-  up,
-  down,
-  none,
-}
-
-class Player extends SpriteAnimationGroupComponent
+class Player extends Actor
     with
         HasGameReference<EdgardInKimeria>,
         KeyboardHandler,
-        CollisionCallbacks {
+        CollisionCallbacks,
+        GravityMixin,
+        CollideMixin {
   Player({Vector2? position})
       : super(
           position: position ?? Vector2.zero(),
@@ -64,7 +46,7 @@ class Player extends SpriteAnimationGroupComponent
   static const kWalkSpeed = 50.0;
   static const kRunSpeed = 100.0;
 
-  var playerDirection = PlayerDirection.none;
+  var playerDirection = ActorDirection.none;
   bool isPlayerFacingRight = true;
 
   static const kGravity = 9.8;
@@ -77,7 +59,9 @@ class Player extends SpriteAnimationGroupComponent
   double horizontalMovement = 0;
   double moveSpeed = 100;
   Vector2 startingPosition = Vector2.zero();
+  @override
   Vector2 velocity = Vector2.zero();
+  @override
   bool isOnGround = false;
   bool isJumping = false;
   bool isAttacking = false;
@@ -86,26 +70,13 @@ class Player extends SpriteAnimationGroupComponent
   bool isGotHit = false;
   bool isReachedCheckpoint = false;
   String collideWithTriggerId = "";
-  late Iterable<Trigger> triggers;
 
   // Add movement input tracking
   bool _isMovementInputActive = false;
-  PlayerDirection _inputDirection = PlayerDirection.none;
-  List<CollisionBlock> collisionBlocks = [];
-  List<Escalator> escalators = [];
-  CustomHitbox hitbox = CustomHitbox(
-    offsetX: 18,
-    offsetY: 26,
-    width: 11,
-    height: 22,
-  );
+  ActorDirection _inputDirection = ActorDirection.none;
+
   static const kFixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
-
-  bool isInQuickSand = false;
-  bool isClambering = false;
-  bool isWallJumping = false;
-  Escalator? currentEscalator;
 
   static const kLeftFollow = 200;
   static const kUpFollow = 200;
@@ -118,17 +89,17 @@ class Player extends SpriteAnimationGroupComponent
 
     startingPosition = Vector2(position.x, position.y);
 
-    add(RectangleHitbox(
-      position: Vector2(hitbox.offsetX, hitbox.offsetY),
-      size: Vector2(hitbox.width, hitbox.height),
-    ));
+    hitbox = CustomHitbox(
+      offsetX: 18,
+      offsetY: 26,
+      width: 11,
+      height: 22,
+    );
 
     game.camera.moveTo(
       startingPosition - Vector2.array([200, 200]),
       speed: 500,
     );
-
-    triggers = parent?.children.whereType<Trigger>() ?? [];
 
     return super.onLoad();
   }
@@ -189,9 +160,9 @@ class Player extends SpriteAnimationGroupComponent
         _checkAttackCollisions();
         _updatePlayerState();
         _updatePlayerMovement(kFixedDeltaTime);
-        _checkHorizontalCollisions();
-        _applyGravity(kFixedDeltaTime);
-        _checkVerticalCollisions(kFixedDeltaTime);
+        checkHorizontalCollisions(this);
+        applyGravity(kFixedDeltaTime);
+        checkVerticalCollisions(this, kFixedDeltaTime);
       }
       accumulatedTime -= kFixedDeltaTime;
     }
@@ -221,11 +192,11 @@ class Player extends SpriteAnimationGroupComponent
 
     // Determine input direction
     if (isLeftKeyPressed) {
-      _inputDirection = PlayerDirection.left;
+      _inputDirection = ActorDirection.left;
     } else if (isRightKeyPressed) {
-      _inputDirection = PlayerDirection.right;
+      _inputDirection = ActorDirection.right;
     } else {
-      _inputDirection = PlayerDirection.none;
+      _inputDirection = ActorDirection.none;
     }
 
     // Handle movement only if not attacking
@@ -320,17 +291,17 @@ class Player extends SpriteAnimationGroupComponent
 
     // List of all animations
     animations = {
-      PlayerState.idle: idleAnimation,
-      PlayerState.running: runningAnimation,
-      PlayerState.jumping: jumpingAnimation,
-      PlayerState.falling: fallingAnimation,
-      PlayerState.hit: hitAnimation,
-      PlayerState.attacking: attackingAnimation,
-      PlayerState.appearing: appearingAnimation,
-      PlayerState.disappearing: disappearingAnimation,
-      PlayerState.climbing: climbingAnimation,
+      ActorState.idle: idleAnimation,
+      ActorState.running: runningAnimation,
+      ActorState.jumping: jumpingAnimation,
+      ActorState.falling: fallingAnimation,
+      ActorState.hit: hitAnimation,
+      ActorState.attacking: attackingAnimation,
+      ActorState.appearing: appearingAnimation,
+      ActorState.disappearing: disappearingAnimation,
+      ActorState.climbing: climbingAnimation,
     };
-    current = PlayerState.idle;
+    current = ActorState.idle;
   }
 
   SpriteAnimation _spriteAnimation(
@@ -369,7 +340,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _updatePlayerState() {
-    PlayerState playerState = PlayerState.idle;
+    ActorState playerState = ActorState.idle;
 
     // Only flip based on player input, not escalator movement
     if (horizontalMovement < 0 && scale.x > 0) {
@@ -382,18 +353,18 @@ class Player extends SpriteAnimationGroupComponent
 
     // Check if moving based on player input, not velocity (to handle escalators)
     if (horizontalMovement > 0 || horizontalMovement < 0) {
-      playerState = PlayerState.running;
+      playerState = ActorState.running;
     }
 
     // check if Falling set to falling
-    if (velocity.y > 0) playerState = PlayerState.falling;
+    if (velocity.y > 0) playerState = ActorState.falling;
 
     // Checks if jumping, set to jumping
-    if (velocity.y < 0) playerState = PlayerState.jumping;
+    if (velocity.y < 0) playerState = ActorState.jumping;
 
-    if (isClambering) playerState = PlayerState.climbing;
+    if (isClambering) playerState = ActorState.climbing;
 
-    if (isAttacking) playerState = PlayerState.attacking;
+    if (isAttacking) playerState = ActorState.attacking;
 
     current = playerState;
   }
@@ -454,121 +425,121 @@ class Player extends SpriteAnimationGroupComponent
     isJumping = false;
   }
 
-  void _checkHorizontalCollisions() {
-    for (final block in collisionBlocks) {
-      if (!block.isActive) continue;
-      if (block.isQuickSand) {
-        if (checkCollision(this, block)) {
-          isInQuickSand = true;
-        } else {
-          isInQuickSand = false;
-        }
-      } else if (block.isWall) {
-        if (checkCollision(this, block)) {
-          if (velocity.x > 0) {
-            velocity.x = 0;
-            position.x = block.x - hitbox.offsetX - hitbox.width;
-            if (!isOnGround) {
-              isClambering = true;
-            }
-            break;
-          }
-          if (velocity.x < 0) {
-            velocity.x = 0;
-            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
-            if (!isOnGround) {
-              isClambering = true;
-            }
-            break;
-          }
-        } else {
-          isClambering = false;
-        }
-      } else {
-        if (checkCollision(this, block)) {
-          if (velocity.x > 0) {
-            velocity.x = 0;
-            position.x = block.x - hitbox.offsetX - hitbox.width;
-            break;
-          }
-          if (velocity.x < 0) {
-            velocity.x = 0;
-            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
-            break;
-          }
-        }
-      }
-    }
-  }
+  // void _checkHorizontalCollisions() {
+  //   for (final block in collisionBlocks) {
+  //     if (!block.isActive) continue;
+  //     if (block.isQuickSand) {
+  //       if (checkCollision(this, block)) {
+  //         isInQuickSand = true;
+  //       } else {
+  //         isInQuickSand = false;
+  //       }
+  //     } else if (block.isWall) {
+  //       if (checkCollision(this, block)) {
+  //         if (velocity.x > 0) {
+  //           velocity.x = 0;
+  //           position.x = block.x - hitbox.offsetX - hitbox.width;
+  //           if (!isOnGround) {
+  //             isClambering = true;
+  //           }
+  //           break;
+  //         }
+  //         if (velocity.x < 0) {
+  //           velocity.x = 0;
+  //           position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+  //           if (!isOnGround) {
+  //             isClambering = true;
+  //           }
+  //           break;
+  //         }
+  //       } else {
+  //         isClambering = false;
+  //       }
+  //     } else {
+  //       if (checkCollision(this, block)) {
+  //         if (velocity.x > 0) {
+  //           velocity.x = 0;
+  //           position.x = block.x - hitbox.offsetX - hitbox.width;
+  //           break;
+  //         }
+  //         if (velocity.x < 0) {
+  //           velocity.x = 0;
+  //           position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
-  void _applyGravity(double dt) {
-    velocity.y += kGravity;
-    velocity.y = velocity.y.clamp(-kJumpForce, kTerminalVelocity);
-    position.y += velocity.y * dt;
-  }
+  // void _applyGravity(double dt) {
+  //   velocity.y += kGravity;
+  //   velocity.y = velocity.y.clamp(-kJumpForce, kTerminalVelocity);
+  //   position.y += velocity.y * dt;
+  // }
 
-  void _checkVerticalCollisions(double dt) {
-    // Reset escalator tracking at the start of collision check
-    currentEscalator = null;
+  // void _checkVerticalCollisions(double dt) {
+  //   // Reset escalator tracking at the start of collision check
+  //   currentEscalator = null;
 
-    for (final block in collisionBlocks) {
-      if (!block.isActive) continue;
-      if (block.isPlatform) {
-        if (checkCollision(this, block)) {
-          if (velocity.y > 0) {
-            velocity.y = 0;
-            position.y = block.y - hitbox.height - hitbox.offsetY;
-            isOnGround = true;
-            break;
-          }
-        }
-      } else if (block.isQuickSand) {
-        if (checkCollision(this, block)) {
-          if (velocity.y > 0) {
-            velocity.y = 0;
-            isOnGround = true;
-            break;
-          }
-          // Removed velocity.x *= 0.1; from here for consistency
-        }
-      } else {
-        if (checkCollision(this, block)) {
-          if (velocity.y > 0) {
-            velocity.y = 0;
-            position.y = block.y - hitbox.height - hitbox.offsetY;
-            isOnGround = true;
-            break;
-          }
-          if (velocity.y < 0) {
-            velocity.y = 0;
-            position.y = block.y + block.height - hitbox.offsetY;
-          }
-        }
-      }
-    }
+  //   for (final block in collisionBlocks) {
+  //     if (!block.isActive) continue;
+  //     if (block.isPlatform) {
+  //       if (checkCollision(this, block)) {
+  //         if (velocity.y > 0) {
+  //           velocity.y = 0;
+  //           position.y = block.y - hitbox.height - hitbox.offsetY;
+  //           isOnGround = true;
+  //           break;
+  //         }
+  //       }
+  //     } else if (block.isQuickSand) {
+  //       if (checkCollision(this, block)) {
+  //         if (velocity.y > 0) {
+  //           velocity.y = 0;
+  //           isOnGround = true;
+  //           break;
+  //         }
+  //         // Removed velocity.x *= 0.1; from here for consistency
+  //       }
+  //     } else {
+  //       if (checkCollision(this, block)) {
+  //         if (velocity.y > 0) {
+  //           velocity.y = 0;
+  //           position.y = block.y - hitbox.height - hitbox.offsetY;
+  //           isOnGround = true;
+  //           break;
+  //         }
+  //         if (velocity.y < 0) {
+  //           velocity.y = 0;
+  //           position.y = block.y + block.height - hitbox.offsetY;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // Check for escalator collisions
-    for (final escalator in escalators) {
-      if (!escalator.isActive) continue;
-      if (checkCollision(this, escalator)) {
-        if (velocity.y > 0) {
-          velocity.y = 0;
-          position.y = escalator.y - hitbox.height - hitbox.offsetY;
-          isOnGround = true;
-          // Track that player is on this escalator
-          currentEscalator = escalator;
-          break;
-        }
-      }
-    }
-  }
+  //   // Check for escalator collisions
+  //   for (final escalator in escalators) {
+  //     if (!escalator.isActive) continue;
+  //     if (checkCollision(this, escalator)) {
+  //       if (velocity.y > 0) {
+  //         velocity.y = 0;
+  //         position.y = escalator.y - hitbox.height - hitbox.offsetY;
+  //         isOnGround = true;
+  //         // Track that player is on this escalator
+  //         currentEscalator = escalator;
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
 
   void _respawn() async {
     if (isGotHit) return;
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
 
     isGotHit = true;
-    current = PlayerState.hit;
+    current = ActorState.hit;
     await animationTicker?.completed;
     animationTicker?.reset();
 
@@ -576,11 +547,11 @@ class Player extends SpriteAnimationGroupComponent
     velocity = Vector2.zero();
     position = startingPosition;
 
-    current = PlayerState.appearing;
+    current = ActorState.appearing;
     await animationTicker?.completed;
     animationTicker?.reset();
     isGotHit = false;
-    current = PlayerState.idle;
+    current = ActorState.idle;
 
     // Reset camera position after respawn
     game.camera.moveTo(
@@ -611,7 +582,7 @@ class Player extends SpriteAnimationGroupComponent
     //   position = position + Vector2(32, -32);
     // }
 
-    current = PlayerState.disappearing;
+    current = ActorState.disappearing;
 
     const waitToChangeDuration = Duration(seconds: 3);
     Future.delayed(waitToChangeDuration, () {
@@ -628,17 +599,17 @@ class Player extends SpriteAnimationGroupComponent
 
   void _resumeMovementAfterAttack() {
     // Resume movement based on stored input direction if still active
-    if (_isMovementInputActive && _inputDirection != PlayerDirection.none) {
+    if (_isMovementInputActive && _inputDirection != ActorDirection.none) {
       switch (_inputDirection) {
-        case PlayerDirection.left:
+        case ActorDirection.left:
           horizontalMovement = -1;
           break;
-        case PlayerDirection.right:
+        case ActorDirection.right:
           horizontalMovement = 1;
           break;
-        case PlayerDirection.none:
-        case PlayerDirection.up:
-        case PlayerDirection.down:
+        case ActorDirection.none:
+        case ActorDirection.up:
+        case ActorDirection.down:
           horizontalMovement = 0;
           break;
       }
@@ -649,7 +620,7 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkAttackCollisions() async {
     if (!isAttacking) return;
-    current = PlayerState.attacking;
+    current = ActorState.attacking;
 
     horizontalMovement = 0;
     velocity.x = 0;

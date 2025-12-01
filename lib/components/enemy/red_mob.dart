@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:edgard_in_kimeria/components/custom_hitbox.dart';
 import 'package:edgard_in_kimeria/components/enemy/enemy.dart';
-import 'package:flame/collisions.dart';
+import 'package:edgard_in_kimeria/components/mixins/collide_mixin.dart';
+import 'package:edgard_in_kimeria/components/mixins/gravity_mixin.dart';
 import 'package:flame/components.dart';
 
 enum State { idle, run, hit, attack }
 
-class RedMob extends Enemy {
+class RedMob extends Enemy with GravityMixin, CollideMixin {
   RedMob({
     required super.position,
     Vector2? size,
@@ -39,11 +41,11 @@ class RedMob extends Enemy {
     player = game.player;
     moveDirection = 0;
 
-    add(
-      RectangleHitbox(
-        position: Vector2(10, 6),
-        size: Vector2(14, 26),
-      ),
+    hitbox = CustomHitbox(
+      offsetX: 10,
+      offsetY: 6,
+      width: 14,
+      height: 26,
     );
     _loadAllAnimations();
     _calculateRange();
@@ -56,6 +58,9 @@ class RedMob extends Enemy {
     if (!gotStomped) {
       _updateState();
       _movement(dt);
+      checkHorizontalCollisions(this);
+      applyGravity(dt);
+      checkVerticalCollisions(this, dt);
       _checkAttackCollision();
     }
   }

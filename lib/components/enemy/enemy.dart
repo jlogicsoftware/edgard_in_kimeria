@@ -1,3 +1,5 @@
+import 'package:edgard_in_kimeria/components/actor.dart';
+import 'package:edgard_in_kimeria/components/mixins/gravity_mixin.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/edgard_in_kimeria.dart';
 import 'package:flame/collisions.dart';
@@ -5,8 +7,8 @@ import 'package:flame/components.dart';
 
 enum State { idle, run, hit }
 
-class Enemy extends SpriteAnimationGroupComponent
-    with HasGameReference<EdgardInKimeria>, CollisionCallbacks {
+class Enemy extends Actor
+    with HasGameReference<EdgardInKimeria>, CollisionCallbacks, GravityMixin {
   Enemy({
     required this.spriteName,
     required Vector2 position,
@@ -28,7 +30,10 @@ class Enemy extends SpriteAnimationGroupComponent
   static const kStepTime = 0.05;
   static const tileSize = 16;
 
+  @override
   Vector2 velocity = Vector2.zero();
+  @override
+  bool isOnGround = false;
   double rangeNeg = 0;
   double rangePos = 0;
   double moveDirection = 0;
