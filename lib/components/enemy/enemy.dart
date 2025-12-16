@@ -66,7 +66,8 @@ class Enemy extends Actor
     );
   }
 
-  void collidedWithPlayer({bool gotHit = false}) async {
+  @override
+  void collidedWithActor({bool gotHit = false}) async {
     if (gotHit ||
         (player.velocity.y > 0 && player.y + player.height > position.y)) {
       if (game.playSounds) {
@@ -76,7 +77,7 @@ class Enemy extends Actor
       await animationTicker?.completed;
       removeFromParent();
     } else {
-      player.collidedWithEnemy();
+      player.collidedWithActor();
     }
   }
 }

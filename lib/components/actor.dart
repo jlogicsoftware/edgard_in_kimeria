@@ -50,4 +50,6 @@ class Actor extends SpriteAnimationGroupComponent {
     }
     return super.onLoad();
   }
+
+  void collidedWithActor({bool gotHit = false}) {}
 }

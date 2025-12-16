@@ -10,6 +10,7 @@ import 'package:edgard_in_kimeria/components/items/collectable.dart';
 import 'package:edgard_in_kimeria/components/environment/collision_block.dart';
 import 'package:edgard_in_kimeria/components/items/trigger.dart';
 import 'package:edgard_in_kimeria/components/objects/escalator.dart';
+import 'package:edgard_in_kimeria/components/objects/falling_platform.dart';
 import 'package:edgard_in_kimeria/components/player.dart';
 import 'package:edgard_in_kimeria/components/effects/firefly.dart';
 import 'package:edgard_in_kimeria/components/effects/rain.dart';
@@ -28,6 +29,7 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
   List<CollisionBlock> collisionBlocks = [];
   List<Escalator> escalators = [];
   List<Trigger> triggers = [];
+  List<FallingPlatform> fallingPlatforms = [];
 
   @override
   Future<void> onLoad() async {
@@ -166,6 +168,15 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
             );
             add(escalator);
             escalators.add(escalator);
+            break;
+          case 'FallingPlatform':
+            final platform = FallingPlatform(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(platform);
+            fallingPlatforms.add(platform);
+            break;
           default:
         }
       }
@@ -177,28 +188,30 @@ class Level extends World with HasGameReference<EdgardInKimeria> {
     final targetId = spawnPoint.name;
     print('Spawning Actionable of type: $type with targetId: $targetId');
 
-    if (type == 'Torch') {
-      final intensity = spawnPoint.properties.getValue('Intensity') ?? 0;
-      final torch = Torch(
-        position: Vector2(spawnPoint.x + spawnPoint.width / 2,
-            spawnPoint.y + spawnPoint.height / 2),
-        size: Vector2(spawnPoint.width, spawnPoint.height),
-        intensity: intensity,
-        targetId: targetId,
-      );
-      add(torch);
-      // Initialize state if needed, e.g. based on intensity
-      if (intensity == 0) {
-        torch.toggleFire(false);
-      }
-    } else if (type == 'Wall') {
-      final wall = Wall(
-        position: Vector2(spawnPoint.x, spawnPoint.y),
-        size: Vector2(spawnPoint.width, spawnPoint.height),
-        targetId: targetId,
-      );
-      add(wall);
-      collisionBlocks.add(wall);
+    switch (type) {
+      case 'Torch':
+        final intensity = spawnPoint.properties.getValue('Intensity') ?? 0;
+        final torch = Torch(
+          position: Vector2(spawnPoint.x + spawnPoint.width / 2,
+              spawnPoint.y + spawnPoint.height / 2),
+          size: Vector2(spawnPoint.width, spawnPoint.height),
+          intensity: intensity,
+          targetId: targetId,
+        );
+        add(torch);
+        // Initialize state if needed, e.g. based on intensity
+        if (intensity == 0) {
+          torch.toggleFire(false);
+        }
+        break;
+      case 'Wall':
+        final wall = Wall(
+          position: Vector2(spawnPoint.x, spawnPoint.y),
+          size: Vector2(spawnPoint.width, spawnPoint.height),
+          targetId: targetId,
+        );
+        add(wall);
+        collisionBlocks.add(wall);
     }
   }
 

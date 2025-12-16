@@ -12,6 +12,7 @@ class CollisionBlock extends PositionComponent implements Collidable {
   bool isActive;
   @override
   bool isEscalator;
+
   CollisionBlock({
     super.position,
     super.size,
