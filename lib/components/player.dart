@@ -241,7 +241,7 @@ class Player extends Actor
     if (!isReachedCheckpoint) {
       if (other is Collectable) other.collideWithPlayer();
       if (other is Bat && !isAttacking) _respawn();
-      if (other is YellowMob && !isAttacking) other.collidedWithPlayer();
+      if (other is YellowMob && !isAttacking) other.collidedWithActor();
       if (other is Checkpoint) _reachedCheckpoint();
       if (other is Bomb) {
         other.collideWithPlayer();
@@ -425,115 +425,6 @@ class Player extends Actor
     isJumping = false;
   }
 
-  // void _checkHorizontalCollisions() {
-  //   for (final block in collisionBlocks) {
-  //     if (!block.isActive) continue;
-  //     if (block.isQuickSand) {
-  //       if (checkCollision(this, block)) {
-  //         isInQuickSand = true;
-  //       } else {
-  //         isInQuickSand = false;
-  //       }
-  //     } else if (block.isWall) {
-  //       if (checkCollision(this, block)) {
-  //         if (velocity.x > 0) {
-  //           velocity.x = 0;
-  //           position.x = block.x - hitbox.offsetX - hitbox.width;
-  //           if (!isOnGround) {
-  //             isClambering = true;
-  //           }
-  //           break;
-  //         }
-  //         if (velocity.x < 0) {
-  //           velocity.x = 0;
-  //           position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
-  //           if (!isOnGround) {
-  //             isClambering = true;
-  //           }
-  //           break;
-  //         }
-  //       } else {
-  //         isClambering = false;
-  //       }
-  //     } else {
-  //       if (checkCollision(this, block)) {
-  //         if (velocity.x > 0) {
-  //           velocity.x = 0;
-  //           position.x = block.x - hitbox.offsetX - hitbox.width;
-  //           break;
-  //         }
-  //         if (velocity.x < 0) {
-  //           velocity.x = 0;
-  //           position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // void _applyGravity(double dt) {
-  //   velocity.y += kGravity;
-  //   velocity.y = velocity.y.clamp(-kJumpForce, kTerminalVelocity);
-  //   position.y += velocity.y * dt;
-  // }
-
-  // void _checkVerticalCollisions(double dt) {
-  //   // Reset escalator tracking at the start of collision check
-  //   currentEscalator = null;
-
-  //   for (final block in collisionBlocks) {
-  //     if (!block.isActive) continue;
-  //     if (block.isPlatform) {
-  //       if (checkCollision(this, block)) {
-  //         if (velocity.y > 0) {
-  //           velocity.y = 0;
-  //           position.y = block.y - hitbox.height - hitbox.offsetY;
-  //           isOnGround = true;
-  //           break;
-  //         }
-  //       }
-  //     } else if (block.isQuickSand) {
-  //       if (checkCollision(this, block)) {
-  //         if (velocity.y > 0) {
-  //           velocity.y = 0;
-  //           isOnGround = true;
-  //           break;
-  //         }
-  //         // Removed velocity.x *= 0.1; from here for consistency
-  //       }
-  //     } else {
-  //       if (checkCollision(this, block)) {
-  //         if (velocity.y > 0) {
-  //           velocity.y = 0;
-  //           position.y = block.y - hitbox.height - hitbox.offsetY;
-  //           isOnGround = true;
-  //           break;
-  //         }
-  //         if (velocity.y < 0) {
-  //           velocity.y = 0;
-  //           position.y = block.y + block.height - hitbox.offsetY;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   // Check for escalator collisions
-  //   for (final escalator in escalators) {
-  //     if (!escalator.isActive) continue;
-  //     if (checkCollision(this, escalator)) {
-  //       if (velocity.y > 0) {
-  //         velocity.y = 0;
-  //         position.y = escalator.y - hitbox.height - hitbox.offsetY;
-  //         isOnGround = true;
-  //         // Track that player is on this escalator
-  //         currentEscalator = escalator;
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
-
   void _respawn() async {
     if (isGotHit) return;
     if (game.playSounds) FlameAudio.play('hit.wav', volume: game.soundVolume);
@@ -662,7 +553,7 @@ class Player extends Actor
       if (attackHitbox.toAbsoluteRect().overlaps(
           enemy.children.whereType<ShapeHitbox>().first.toAbsoluteRect())) {
         // enemy.collidedWithPlayer();
-        enemy.collidedWithPlayer(gotHit: true);
+        enemy.collidedWithActor(gotHit: true);
         print('Enemy hit!');
         // isAttacking = false;
         // isAttackHitboxAdded = false;
@@ -672,7 +563,8 @@ class Player extends Actor
     }
   }
 
-  void collidedWithEnemy() {
+  @override
+  void collidedWithActor({bool gotHit = false}) async {
     _respawn();
   }
 }

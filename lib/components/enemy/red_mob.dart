@@ -158,7 +158,7 @@ class RedMob extends Enemy with GravityMixin, CollideMixin {
   }
 
   @override
-  void collidedWithPlayer({bool gotHit = false}) async {
+  void collidedWithActor({bool gotHit = false}) async {
     if (gotHit ||
         (player.velocity.y > 0 && player.y + player.height > position.y)) {
       if (game.playSounds) {
@@ -170,7 +170,7 @@ class RedMob extends Enemy with GravityMixin, CollideMixin {
       await animationTicker?.completed;
       removeFromParent();
     } else {
-      player.collidedWithEnemy();
+      player.collidedWithActor();
     }
   }
 
@@ -192,7 +192,7 @@ class RedMob extends Enemy with GravityMixin, CollideMixin {
   void _checkAttackCollision() {
     if (isAttacking) {
       if (_playerInAttackRange()) {
-        player.collidedWithEnemy();
+        player.collidedWithActor();
       }
     }
   }

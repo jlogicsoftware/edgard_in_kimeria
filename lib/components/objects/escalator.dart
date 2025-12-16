@@ -30,16 +30,12 @@ class Escalator extends SpriteAnimationGroupComponent
 
   @override
   bool isActive = true;
-
   @override
   bool isPlatform = false;
-
   @override
   bool isQuickSand = false;
-
   @override
   bool isWall = false;
-
   @override
   bool isEscalator = true;
 
